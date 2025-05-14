@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distance Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            100: '#E5E7EB',
+                            200: '#D1D5DB',
+                            300: '#9CA3AF',
+                            400: '#6B7280',
+                            500: '#4B5563',
+                            600: '#374151',
+                            700: '#1F2937',
+                            800: '#111827',
+                            900: '#0F172A',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .btn-glow {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+        }
+        .btn-danger-glow {
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        .btn-danger-glow:hover {
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        body {
+            background-color: #111827;
+            color: #E5E7EB;
+        }
+        .panel {
+            background-color: #1F2937;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .panel-header {
+            border-bottom: 1px solid #374151;
+            padding: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        .panel-content {
+            padding: 1.5rem;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body class="dark">
+    <!-- Navbar -->
+    <nav class="bg-dark-800 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-ruler-combined text-blue-400 text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-dark-100">DashB</span>
+                </div>
+                
+                <!-- Control Buttons -->
+                <div class="flex items-center space-x-4">
+                    <!-- Distance Dropdown -->
+                    <div class="dropdown relative">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow">
+                            <i class="fas fa-arrows-alt-v mr-2"></i>
+                            <span id="selected-distance">Selecione distancia de teste</span>
+                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu absolute hidden mt-2 w-48 bg-dark-700 rounded-md shadow-lg z-10 border border-dark-600">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(10)">10 metros</a>
+                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(20)">20 metros</a>
+                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(30)">30 metros</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Start Button -->
+                    <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="postMessage()">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        enviar para base
+                    </button>
+                    
+                    <!-- Stop Button (Initially Hidden) -->
+                    <button id="stop-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden" onclick="stopMeasurement()">
+                        <i class="fas fa-stop mr-2"></i>
+                        parar teste
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Graphs Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-chart-line text-blue-400 mr-2"></i>
+                    <span>Gráficos</span>
+                </div>
+                <div class="panel-content">
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center text-dark-400">
+                            <i class="fas fa-chart-bar text-4xl mb-2 text-dark-500"></i>
+                            <p>Gráficos aparecerão aqui assim que o teste for finalizado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Infos Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                    <span>Informações</span>
+                </div>
+                <div class="panel-content">
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-dark-300">Status atual</h3>
+                            <p id="status-info" class="text-dark-100 mt-1">fora de teste</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-dark-300">distancia selecionada</h3>
+                            <p id="distance-info" class="text-dark-100 mt-1">0 metros</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-dark-300">velocidade media</h3>
+                            <p id="velocity-info" class="text-dark-100 mt-1">0 m/s</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bg-dark-800 shadow-lg rounded-lg p-4 max-w-xs border border-dark-700">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <i id="toast-icon" class="fas fa-info-circle text-blue-400 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 id="toast-title" class="text-sm font-medium text-dark-100">Notification</h3>
+                <p id="toast-message" class="mt-1 text-sm text-dark-300">Message content</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDistance = null;
+        let measurementActive = false;
+        let startTime = null;
+        let velocity = 0;
+        
+        function selectDistance(meters) {
+            selectedDistance = meters;
+            document.getElementById('selected-distance').textContent = meters + ' metros';
+            document.getElementById('distance-info').textContent = meters + ' metros';
+            showToast('Sucesso', `distancia settada para ${meters} metros`, 'sucesso');
+        }
+        
+        function postMessage() {
+            if (!selectedDistance) {
+                showToast('Erro', 'Por favor, selecione uma distância para o teste!', 'erro');
+                return;
+            }
+            
+            // Hide the Post button and show the Stop button
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('stop-btn').classList.remove('hidden');
+            
+            measurementActive = true;
+            startTime = new Date();
+            document.getElementById('status-info').textContent = 'em teste...';
+            showToast('Sucesso', `Teste iniciado para ${selectedDistance}m`, 'sucesso');
+            
+            // Simulate velocity calculation (in a real app, this would come from actual measurements)
+            calculateVelocity();
+        }
+        
+        function stopMeasurement() {
+            // Hide the Stop button and show the Post button
+            document.getElementById('stop-btn').classList.add('hidden');
+            document.getElementById('start-btn').classList.remove('hidden');
+            
+            measurementActive = false;
+            document.getElementById('status-info').textContent = 'Fora de teste';
+            showToast('Parou', 'Teste interrompido', 'info');
+        }
+        
+        function calculateVelocity() {
+            if (!measurementActive) return;
+            
+            // In a real app, this would calculate based on actual measurements
+            // Here we simulate a random velocity between 2 and 5 m/s
+            velocity = (Math.random() * 3 + 2).toFixed(2);
+            document.getElementById('velocity-info').textContent = velocity + ' m/s';
+            
+            // Update every second
+            setTimeout(calculateVelocity, 1000);
+        }
+        
+        function showToast(title, message, type) {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Set content
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            
+            // Set icon and color based on type
+            switch(type) {
+                case 'success':
+                    toastIcon.className = 'fas fa-check-circle text-green-400 text-xl';
+                    break;
+                case 'error':
+                    toastIcon.className = 'fas fa-exclamation-circle text-red-400 text-xl';
+                    break;
+                case 'info':
+                    toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
+                    break;
+                default:
+                    toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
+            }
+            
+            // Show toast
+            toast.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
