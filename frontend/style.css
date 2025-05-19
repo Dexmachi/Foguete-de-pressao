@@ -1,0 +1,60 @@
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.btn-glow-blue {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.btn-glow-green {
+    box-shadow: 0 0 10px rgba(12, 204, 69, 0.5);
+}
+
+.btn-glow:hover {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+}
+
+.btn-danger-glow {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.btn-danger-glow:hover {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+}
+
+.toast {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+body {
+    background-color: #111827;
+    color: #E5E7EB;
+}
+
+.panel {
+    background-color: #1F2937;
+    border-radius: 0.5rem;
+    border: 1px solid #374151;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.panel-header {
+    border-bottom: 1px solid #374151;
+    padding: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.panel-content {
+    padding: 1.5rem;
+    min-height: 200px;
+}
