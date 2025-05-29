@@ -1,42 +1,53 @@
-from movimento import calcular_movimento, calcular_espaco_tempo
-from graficos import plotar_graficos
-import numpy as np
 import json
-
+import numpy as np
+from datetime import datetime
+from movimento import calcular_movimento, haversine
+from graficos import plotar_graficos
 
 def main():
-    print("Programa de Análise de Movimento")
-    print("Lendo dados de movimento do arquivo JSON...")
+    print("Programa de Análise de Movimento via GPS")
+    print("Lendo dados de movimento do arquivo ficticio.json...")
 
-    with open('ficticio.json', 'r') as f:
-        dados = json.load(f)
-    
-    data_points = dados['data_points']
-    tempos, espacos = calcular_espaco_tempo(data_points)
-    
-    if len(tempos) != len(espacos):
-        print("Erro: O número de tempos deve ser igual ao número de espaços!")
+    # Lê JSON Lines
+    with open('dadosRecebidos.json', 'r') as f:
+        registros = json.load(f)
+
+    # Ordena por data+hora
+    registros.sort(key=lambda r: datetime.strptime(
+        r['data'] + ' ' + r['hora'], "%d/%m/%Y %H:%M:%S"))
+
+    # Extrai tempos em segundos desde o primeiro ponto
+    t0 = datetime.strptime(
+        registros[0]['data'] + ' ' + registros[0]['hora'], "%d/%m/%Y %H:%M:%S")
+    tempos = np.array([(datetime.strptime(r['data'] + ' ' + r['hora'], "%d/%m/%Y %H:%M:%S") - t0).total_seconds()
+                       for r in registros])
+
+    # Calcula distância acumulada em metros
+    distancias = [0.0]
+    for i in range(1, len(registros)):
+        r0 = registros[i-1]
+        r1 = registros[i]
+        d = haversine(r0['latitude'], r0['longitude'],
+                      r1['latitude'], r1['longitude'])
+        distancias.append(distancias[-1] + d)
+    distancias = np.array(distancias)
+
+    # Verifica integridade
+    if len(tempos) != len(distancias):
+        print("Erro: número de tempos diferente de número de distâncias!")
         return
-    # Entrada de dados
-    #tempos = input("Tempos (ex: 0,1,2,3,4): ").split(',')
-    #espacos = input("Espaços percorridos (ex: 0,2,8,18,32): ").split(',')
 
-    # Convertendo para arrays numéricos
-    #tempos = np.array([float(t) for t in tempos])
-    #espacos = np.array([float(e) for e in espacos])
+    # Calcula grandezas físicas
+    resultados = calcular_movimento(tempos, distancias)
 
-    
-
-    # Calculando as grandezas físicas
-    resultados = calcular_movimento(tempos, espacos)
-
-    # Exibindo resultados numéricos
+    # Exibe resultados
     print("\nResultados:")
     print(f"Velocidade média: {resultados['velocidade_media']:.2f} m/s")
     print(f"Aceleração média: {resultados['aceleracao_media']:.2f} m/s²")
 
-    # Plotando gráficos
-    plotar_graficos(tempos, espacos, resultados)
-    
+    # Plota gráficos de posição e velocidade
+    plotar_graficos(tempos, distancias, resultados)
+
+
 if __name__ == "__main__":
     main()
