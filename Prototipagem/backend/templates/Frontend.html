@@ -242,7 +242,7 @@
         if (data.status === 'success') {
             // Update the UI with the new graph
             document.querySelector('.panel-content').innerHTML = 
-                `<img src="grafico.png?${Date.now()}" alt="Results" class="w-full">`;
+                `<img src="/static/grafico.png?${Date.now()}" alt="Results" class="w-full">`;
             
             // Update velocity display
             document.getElementById('velocity-info').textContent = 
