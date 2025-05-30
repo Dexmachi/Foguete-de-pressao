@@ -6,30 +6,40 @@ from graficos import plotar_graficos
 import sys
 import webbrowser
 
+
 def process_data():
     print("Processando dados...")
-    
+
     # Lê JSON Lines
-    with open('dadosRecebidos.json', 'r') as f:
+    with open("dadosRecebidos.json", "r") as f:
         registros = json.load(f)
 
     # Ordena por data+hora
-    registros.sort(key=lambda r: datetime.strptime(
-        r['data'] + ' ' + r['hora'], "%d/%m/%Y %H:%M:%S"))
+    registros.sort(
+        key=lambda r: datetime.strptime(
+            r["data"] + " " + r["hora"], "%d/%m/%Y %H:%M:%S"
+        )
+    )
 
     # Extrai tempos em segundos desde o primeiro ponto
     t0 = datetime.strptime(
-        registros[0]['data'] + ' ' + registros[0]['hora'], "%d/%m/%Y %H:%M:%S")
-    tempos = np.array([(datetime.strptime(r['data'] + ' ' + r['hora'], "%d/%m/%Y %H:%M:%S") - t0).total_seconds()
-                       for r in registros])
+        registros[0]["data"] + " " + registros[0]["hora"], "%d/%m/%Y %H:%M:%S"
+    )
+    tempos = np.array(
+        [
+            (
+                datetime.strptime(r["data"] + " " + r["hora"], "%d/%m/%Y %H:%M:%S") - t0
+            ).total_seconds()
+            for r in registros
+        ]
+    )
 
     # Calcula distância acumulada em metros
     distancias = [0.0]
     for i in range(1, len(registros)):
-        r0 = registros[i-1]
+        r0 = registros[i - 1]
         r1 = registros[i]
-        d = haversine(r0['latitude'], r0['longitude'],
-                      r1['latitude'], r1['longitude'])
+        d = haversine(r0["latitude"], r0["longitude"], r1["latitude"], r1["longitude"])
         distancias.append(distancias[-1] + d)
     distancias = np.array(distancias)
 
@@ -48,12 +58,13 @@ def process_data():
 
     # Plota gráficos
     plotar_graficos(tempos, distancias, resultados)
-    
+
     # Abre o frontend novamente para mostrar os resultados
     # webbrowser.open('Frontend.html')
 
+
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == '--process':
+    if len(sys.argv) > 1 and sys.argv[1] == "--process":
         process_data()
     else:
         print("Modo padrão: executando análise")
