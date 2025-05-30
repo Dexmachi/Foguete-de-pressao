@@ -235,7 +235,7 @@
                 showToast('Erro', 'Por favor, selecione uma distância para o teste!', 'erro');
                 return;
             }
-            
+
             document.getElementById('start-btn').classList.add('hidden');
             document.getElementById('stop-btn').classList.remove('hidden');
             document.getElementById('status-info').textContent = 'em teste...';
@@ -247,14 +247,24 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({distance: selectedDistance}),
+                    body: JSON.stringify({distancia: selectedDistance}),
                 });
-                
-                if (response.ok) {
-                    showToast('Servidor', 'Servidor iniciado com sucesso', 'success');
-                } else {
-                    throw new Error('Failed to start server');
+                if (!response.ok) {
+                    throw new Error('falha ao iniciar o servidor');
                 }
+
+                const response2 = await fetch('/save-distance', {  // mudança aqui: seu endpoint backend
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ distancia: selectedDistance }),
+                });
+
+                if (!response2.ok) {
+                    throw new Error('falha ao enviar a distância');
+                }
+                showToast('Servidor', 'Servidor iniciado e distância salva com sucesso', 'success');
             } catch (error) {
                 showToast('Erro', 'Falha ao iniciar o servidor', 'error');
                 console.error(error);

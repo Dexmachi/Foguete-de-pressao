@@ -16,6 +16,7 @@ CORS(
         },
         r"/gps": {"origins": "*"},
         r"/ping": {"origins": "*"},
+        r"/save-distance": {"origins": ["http://127.0.0.1:5000", "http://localhost:5000"]},
     },
 )
 
@@ -60,20 +61,47 @@ def start_server_route():
 @app.route("/historico")  # <-- Adicione esta rota
 def historico():
     return send_from_directory(".", "templates/historico.html")
+
+@app.route("/save-distance", methods=["POST"])
+def save_distance():
+    try:
+        data = request.get_json()
+        if "distancia" not in data:
+            print("[ERRO] Chave 'distancia' não está no JSON")
+            return jsonify({"status": "error", "message": "Distância não fornecida"}), 400
+        
+        distancia = data["distancia"]
+
+        with open("resultados.json", "r") as f:
+            dados_anteriores = json.load(f)
+
+        dados_anteriores["distancia"] = distancia
+
+        
+        with open("resultados.json", "w") as f:
+            json.dump(dados_anteriores, f, indent=4)
+
+        print("[INFO] Distância salva:", distancia)
+        return jsonify({"status": "success", "message": "Distância salva com sucesso!"})
+    except Exception as e:
+        print("[ERRO] Exceção no save_distance:", str(e))
+        return jsonify({"status": "error", "message": str(e)}), 500
     
 @app.route('/process-data', methods=['POST'])
 def process_data():
     try:
-        # Run your data processing script
         result = subprocess.run(
             ["python", "main.py", "--process"], capture_output=True, text=True
         )
 
         if result.returncode == 0:
+            with open("resultados.json", "r") as f:
+                    resultados = json.load(f)
+                    velocidade_media = float(resultados.get("velocidade_media", 0.0))
             return jsonify(
                 {
                     "status": "success",
-                    "velocity": 2.45,  # Replace with actual calculated value
+                    "velocity": velocidade_media, 
                 }
             )
         else:
@@ -81,7 +109,6 @@ def process_data():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 def start_server():
     app.run(host="0.0.0.0", port=5000)

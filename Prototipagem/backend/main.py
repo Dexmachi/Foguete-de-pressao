@@ -4,15 +4,24 @@ from datetime import datetime
 from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
 import sys
-import webbrowser
+import os
+
+
+pasta_de_saida="json"
+os.makedirs(pasta_de_saida, exist_ok=True)
+arquivos_existentes = os.listdir(pasta_de_saida)
+id_teste = len(arquivos_existentes) + 1
 
 
 def process_data():
     print("Processando dados...")
 
+
     # Lê JSON Lines
     with open("dadosRecebidos.json", "r") as f:
         registros = json.load(f)
+    
+    
 
     # Ordena por data+hora
     registros.sort(
@@ -50,6 +59,32 @@ def process_data():
 
     # Calcula grandezas físicas
     resultados = calcular_movimento(tempos, distancias)
+    with open("resultados.json", "r") as f:
+        dados_anteriores = json.load(f)
+    distancias = dados_anteriores.get("distancia", 0.0)
+
+    
+    with open("resultados.json", "w") as f:
+        json.dump(
+            {
+                "velocidade_media": resultados["velocidade_media"],
+                "aceleracao_media": resultados["aceleracao_media"],
+                "distancia": distancias,
+            }, f)
+        
+    with open("resultados.json", "r") as f:
+        dados_para_distancia = json.load(f)
+    
+    distancia = int(dados_para_distancia.get("distancia", 0.0))
+    
+    
+    data_teste = registros[0]["data"]
+    data_formatada = datetime.strptime(data_teste, "%d/%m/%Y").strftime("%Y-%m-%d")
+    nome_arquivo = f"{pasta_de_saida}/teste{id_teste}_{distancia}_Metros_{data_formatada}.json"
+    with open(nome_arquivo, "w") as f:
+        json.dump(registros, f, indent=4)
+        
+    
 
     # Exibe resultados
     print("\nResultados:")
