@@ -50,7 +50,7 @@ def process_data():
     plotar_graficos(tempos, distancias, resultados)
     
     # Abre o frontend novamente para mostrar os resultados
-    webbrowser.open('Frontend.html')
+    # webbrowser.open('Frontend.html')
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--process':
