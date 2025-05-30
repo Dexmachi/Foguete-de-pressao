@@ -29,9 +29,6 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
         .btn-glow {
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
@@ -75,6 +72,20 @@
             padding: 1.5rem;
             min-height: 200px;
         }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            margin-top: 0.5rem;
+            width: 12rem;
+            background-color: #374151;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            border: 1px solid #4B5563;
+        }
+        .dropdown-menu.show {
+            display: block;
+        }
     </style>
 </head>
 <body class="dark">
@@ -91,13 +102,13 @@
                 <!-- Control Buttons -->
                 <div class="flex items-center space-x-4">
                     <!-- Distance Dropdown -->
-                    <div class="dropdown relative">
-                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow">
+                    <div class="relative">
+                        <button id="dropdown-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow">
                             <i class="fas fa-arrows-alt-v mr-2"></i>
                             <span id="selected-distance">Selecione distancia de teste</span>
                             <i class="fas fa-chevron-down ml-2 text-xs"></i>
                         </button>
-                        <div class="dropdown-menu absolute hidden mt-2 w-48 bg-dark-700 rounded-md shadow-lg z-10 border border-dark-600">
+                        <div id="dropdown-menu" class="dropdown-menu">
                             <div class="py-1">
                                 <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(10)">10 metros</a>
                                 <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(20)">20 metros</a>
@@ -116,6 +127,11 @@
                     <button id="stop-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden" onclick="stopMeasurement()">
                         <i class="fas fa-stop mr-2"></i>
                         parar teste
+                    </button>
+
+                    <button id="histórico" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="window.location.href='/historico'">
+                        <i class="fas fa-history mr-2"></i>
+                        Histórico
                     </button>
                 </div>
             </div>
@@ -186,84 +202,104 @@
         let startTime = null;
         let velocity = 0;
         
+        // Dropdown functionality
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        
+        // Toggle dropdown on button click
+        dropdownButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            dropdownMenu.classList.remove('show');
+        });
+        
+        // Prevent dropdown from closing when clicking inside it
+        dropdownMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
         function selectDistance(meters) {
             selectedDistance = meters;
             document.getElementById('selected-distance').textContent = meters + ' metros';
             document.getElementById('distance-info').textContent = meters + ' metros';
+            dropdownMenu.classList.remove('show');
             showToast('Sucesso', `distancia settada para ${meters} metros`, 'sucesso');
         }
         
         async function postMessage() {
-        if (!selectedDistance) {
-            showToast('Erro', 'Por favor, selecione uma distância para o teste!', 'erro');
-            return;
-        }
-        
-        document.getElementById('start-btn').classList.add('hidden');
-        document.getElementById('stop-btn').classList.remove('hidden');
-        document.getElementById('status-info').textContent = 'em teste...';
-        
-        try {
-            // Start the server via fetch API
-            const response = await fetch('http://localhost:5000/start-server', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({distance: selectedDistance}),
-            });
-            
-            if (response.ok) {
-                showToast('Servidor', 'Servidor iniciado com sucesso', 'success');
-            } else {
-                throw new Error('Failed to start server');
+            if (!selectedDistance) {
+                showToast('Erro', 'Por favor, selecione uma distância para o teste!', 'erro');
+                return;
             }
-        } catch (error) {
-            showToast('Erro', 'Falha ao iniciar o servidor', 'error');
-            console.error(error);
-        }
-    }
-    
-    async function stopMeasurement() {
-    try {
-        const response = await fetch('/process-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+            
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('stop-btn').classList.remove('hidden');
+            document.getElementById('status-info').textContent = 'em teste...';
+            
+            try {
+                // Start the server via fetch API
+                const response = await fetch('http://localhost:5000/start-server', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({distance: selectedDistance}),
+                });
+                
+                if (response.ok) {
+                    showToast('Servidor', 'Servidor iniciado com sucesso', 'success');
+                } else {
+                    throw new Error('Failed to start server');
+                }
+            } catch (error) {
+                showToast('Erro', 'Falha ao iniciar o servidor', 'error');
+                console.error(error);
             }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Server error');
         }
         
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            // Update the UI with the new graph
-            document.querySelector('.panel-content').innerHTML = 
-                `<img src="/static/grafico.png?${Date.now()}" alt="Results" class="w-full">`;
+        async function stopMeasurement() {
+            try {
+                const response = await fetch('/process-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Server error');
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Update the UI with the new graph
+                    document.querySelector('.panel-content').innerHTML = 
+                        `<img src="/static/grafico.png?${Date.now()}" alt="Results" class="w-full">`;
+                    
+                    // Update velocity display
+                    document.getElementById('velocity-info').textContent = 
+                        `${data.velocity.toFixed(2)} m/s`;
+                    
+                    showToast('Success', 'Data processed!', 'success');
+                } else {
+                    throw new Error(data.message || 'Processing failed');
+                }
+                
+            } catch (error) {
+                showToast('Error', error.message, 'error');
+                console.error('Processing error:', error);
+            }
             
-            // Update velocity display
-            document.getElementById('velocity-info').textContent = 
-                `${data.velocity.toFixed(2)} m/s`;
-            
-            showToast('Success', 'Data processed!', 'success');
-        } else {
-            throw new Error(data.message || 'Processing failed');
+            // Reset UI
+            document.getElementById('stop-btn').classList.add('hidden');
+            document.getElementById('start-btn').classList.remove('hidden');
+            document.getElementById('status-info').textContent = 'Ready';
         }
-        
-    } catch (error) {
-        showToast('Error', error.message, 'error');
-        console.error('Processing error:', error);
-    }
-    
-    // Reset UI
-    document.getElementById('stop-btn').classList.add('hidden');
-    document.getElementById('start-btn').classList.remove('hidden');
-    document.getElementById('status-info').textContent = 'Ready';
-}
-        
         
         function showToast(title, message, type) {
             const toast = document.getElementById('toast');
@@ -278,9 +314,11 @@
             // Set icon and color based on type
             switch(type) {
                 case 'success':
+                case 'sucesso':
                     toastIcon.className = 'fas fa-check-circle text-green-400 text-xl';
                     break;
                 case 'error':
+                case 'erro':
                     toastIcon.className = 'fas fa-exclamation-circle text-red-400 text-xl';
                     break;
                 case 'info':

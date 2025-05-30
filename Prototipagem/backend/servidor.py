@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 import datetime
 import json
 import sys
@@ -46,6 +46,10 @@ def start_server_route():
         response.headers.add("Access-Control-Allow-Methods", "*")
         return response
     return jsonify({"status": "success", "message": "Server started"})
+
+@app.route("/historico")  # <-- Adicione esta rota
+def historico():
+    return send_from_directory(".", "templates/historico.html")
     
 @app.route('/process-data', methods=['POST'])
 def process_data():
