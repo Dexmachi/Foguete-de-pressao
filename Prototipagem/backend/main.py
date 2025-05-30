@@ -3,11 +3,12 @@ import numpy as np
 from datetime import datetime
 from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
+import sys
+import webbrowser
 
-def main():
-    print("Programa de Análise de Movimento via GPS")
-    print("Lendo dados de movimento do arquivo ficticio.json...")
-
+def process_data():
+    print("Processando dados...")
+    
     # Lê JSON Lines
     with open('dadosRecebidos.json', 'r') as f:
         registros = json.load(f)
@@ -45,9 +46,15 @@ def main():
     print(f"Velocidade média: {resultados['velocidade_media']:.2f} m/s")
     print(f"Aceleração média: {resultados['aceleracao_media']:.2f} m/s²")
 
-    # Plota gráficos de posição e velocidade
+    # Plota gráficos
     plotar_graficos(tempos, distancias, resultados)
-
+    
+    # Abre o frontend novamente para mostrar os resultados
+    webbrowser.open('Frontend.html')
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == '--process':
+        process_data()
+    else:
+        print("Modo padrão: executando análise")
+        process_data()
