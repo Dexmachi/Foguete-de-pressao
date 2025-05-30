@@ -45,6 +45,7 @@ def start_server_route():
         response.headers.add("Access-Control-Allow-Headers", "*")
         response.headers.add("Access-Control-Allow-Methods", "*")
         return response
+    return jsonify({"status": "success", "message": "Server started"})
     
 @app.route('/process-data', methods=['POST'])
 def process_data():
@@ -72,12 +73,6 @@ def process_data():
             'status': 'error',
             'message': str(e)
         }), 500
-    
-    try:
-        # If you need to start a subprocess or something
-        return jsonify({"status": "success", "message": "Server started"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
 
 def start_server():
     app.run(host='0.0.0.0', port=5000)
