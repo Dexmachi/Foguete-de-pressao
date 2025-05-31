@@ -175,7 +175,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-medium text-dark-300">distancia maxima atingida:</h3>
-                            <p id="distanceia_max" class="text-dark-100 mt-1">0 metros</p>
+                            <p id="distancia_max" class="text-dark-100 mt-1">0 metros</p>
                         </div>
                         <div>
                             <h3 class="text-sm font-medium text-dark-300">altitude maxima atingida:</h3>
@@ -304,9 +304,9 @@
                     document.getElementById('velocity-info').textContent = 
                         `${data.velocity.toFixed(2)} m/s`;
                     document.getElementById('distancia_max').textContent = 
-                        `${data.distancia_max.toFixed(2)} m/s`;
+                        `${data.distancia_max.toFixed(2)} metros`;
                     document.getElementById('altitude_max').textContent = 
-                        `${data.altitude_max.toFixed(2)} m/s`;
+                        `${data.altitude_max.toFixed(2)} metros`;
                     
                     showToast('Success', 'Data processed!', 'success');
                 } else {
