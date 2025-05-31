@@ -10,3 +10,5 @@ venv/
 Prototipagem/backend/__pycache__
 .ruff_cache/
 .pytest_cache/
+./.idea/
+./vscode/
