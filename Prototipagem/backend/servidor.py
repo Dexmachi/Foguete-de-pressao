@@ -98,10 +98,14 @@ def process_data():
             with open("resultados.json", "r") as f:
                     resultados = json.load(f)
                     velocidade_media = float(resultados.get("velocidade_media", 0.0))
+                    distancia_total = float(resultados.get("distancia_total", 0.0))
+                    altura_maxima = float(resultados.get("altura_maxima", 0.0))
             return jsonify(
                 {
                     "status": "success",
                     "velocity": velocidade_media, 
+                    "altitude_max": altura_maxima,
+                    "distancia_max": distancia_total,
                 }
             )
         else:

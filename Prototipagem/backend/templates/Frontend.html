@@ -174,6 +174,13 @@
                             <p id="distance-info" class="text-dark-100 mt-1">0 metros</p>
                         </div>
                         <div>
+                            <h3 class="text-sm font-medium text-dark-300">distancia maxima atingida:</h3>
+                            <p id="distanceia_max" class="text-dark-100 mt-1">0 metros</p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-medium text-dark-300">altitude maxima atingida:</h3>
+                            <p id="altitude_max" class="text-dark-100 mt-1">0 metros</p>
+                        <div>
                             <h3 class="text-sm font-medium text-dark-300">velocidade media</h3>
                             <p id="velocity-info" class="text-dark-100 mt-1">0 m/s</p>
                         </div>
@@ -201,6 +208,8 @@
         let measurementActive = false;
         let startTime = null;
         let velocity = 0;
+        let distancia_max = 0;
+        let altitude_max = 0;
         
         // Dropdown functionality
         const dropdownButton = document.getElementById('dropdown-button');
@@ -294,6 +303,10 @@
                     // Update velocity display
                     document.getElementById('velocity-info').textContent = 
                         `${data.velocity.toFixed(2)} m/s`;
+                    document.getElementById('distancia_max').textContent = 
+                        `${data.distancia_max.toFixed(2)} m/s`;
+                    document.getElementById('altitude_max').textContent = 
+                        `${data.altitude_max.toFixed(2)} m/s`;
                     
                     showToast('Success', 'Data processed!', 'success');
                 } else {

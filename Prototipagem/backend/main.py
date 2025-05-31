@@ -61,22 +61,19 @@ def process_data():
     # Calcula grandezas físicas
     resultados = calcular_movimento(tempos, distancias)
     with open("resultados.json", "r") as f:
-        dados_anteriores = json.load(f)
-    distancias = dados_anteriores.get("distancia", 0.0)
-
+        dados_para_distancia = json.load(f)
+    
+    distancia = int(dados_para_distancia.get("distancia", 0.0))
     
     with open("resultados.json", "w") as f:
         json.dump(
             {
                 "velocidade_media": resultados["velocidade_media"],
                 "aceleracao_media": resultados["aceleracao_media"],
-                "distancia": distancias,
+                "distancia": distancia,
+                "distancia_total": resultados["distancia_total"],
+                "altura_maxima": resultados["altura_maxima"],
             }, f)
-        
-    with open("resultados.json", "r") as f:
-        dados_para_distancia = json.load(f)
-    
-    distancia = int(dados_para_distancia.get("distancia", 0.0))
     
     
     data_teste = registros[0]["data"]
@@ -91,6 +88,9 @@ def process_data():
     print("\nResultados:")
     print(f"Velocidade média: {resultados['velocidade_media']:.2f} m/s")
     print(f"Aceleração média: {resultados['aceleracao_media']:.2f} m/s²")
+    print(f"Distância total: {resultados['distancia_total']:.2f} metros")
+    print(f"Arquivo salvo: {nome_arquivo}")
+    print(f"Altura maáxima: {resultados['altura_maxima']:.2f} metros")
 
     # Plota gráficos
     plotar_graficos(tempos, distancias, resultados)
