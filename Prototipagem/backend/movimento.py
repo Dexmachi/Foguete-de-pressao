@@ -1,5 +1,6 @@
 import numpy as np
 from datetime import datetime
+import math
 from math import radians, sin, cos, sqrt, atan2
 
 
@@ -83,10 +84,21 @@ def calcular_movimento(
         )  # Aceleração média total (variação da velocidade / tempo total)
     else:
         aceleracao_media = 0  # Caso não haja velocidades (ex: apenas um ponto), aceleração média é zero
+    delta_t = tempos[-1] - tempos[0]
+    distancia_total = velocidade_media * delta_t
+    
+    # Cálculo da altura máxima no lançamento oblíquo com ângulo de 45°
+    g = 9.8  # gravidade (m/s²)
+    theta = math.radians(45)  # converter graus para radianos
+    v0y = velocidade_media * math.sin(theta)
+    altura_maxima = (v0y ** 2) / (2 * g) if v0y > 0 else 0
+
 
     return {  # Retorna um dicionário com os resultados calculados
         "velocidades": velocidades,  # Array de velocidades instantâneas
         "aceleracoes": aceleracoes,  # Array de acelerações instantâneas
         "velocidade_media": velocidade_media,  # Valor da velocidade média total
         "aceleracao_media": aceleracao_media,  # Valor da aceleração média total
+        "distancia_total": distancia_total,  # Distância total percorrida
+        "altura_maxima": altura_maxima,  # Altura máxima alcançada
     }

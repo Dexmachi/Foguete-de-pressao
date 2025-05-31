@@ -5,6 +5,7 @@ from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
 import sys
 import os
+import math
 
 
 pasta_de_saida="json"
