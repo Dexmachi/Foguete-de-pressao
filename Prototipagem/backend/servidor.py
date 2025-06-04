@@ -56,7 +56,7 @@ def start_server_route():
         response.headers.add("Access-Control-Allow-Headers", "*")
         response.headers.add("Access-Control-Allow-Methods", "*")
         return response
-    return jsonify({"status": "success", "message": "Server started"})
+    return jsonify({"status": "sucesso", "message": "Servidor iniciado com sucesso!"})
 
 @app.route("/historico")  # <-- Adicione esta rota
 def historico():
