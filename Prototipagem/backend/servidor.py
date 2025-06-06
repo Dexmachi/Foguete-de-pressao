@@ -8,26 +8,25 @@ from flask_cors import CORS
 import subprocess
 
 app = Flask(__name__)
-CORS(
-    app,
-    resources={
-        r"/start-server": {
-            "origins": ["http://127.0.0.1:5000", "http://localhost:5000"]
-        },
-        r"/gps": {"origins": "*"},
-        r"/ping": {"origins": "*"},
-    },
-)
+CORS(app)
+
+aceitando_dados = False  # Variável para controlar se o servidor está aceitando dados
 
 
 def save_data(data):
     with open("dadosRecebidos.json", "a", encoding="utf-8") as f:
-        json.dump(data, f)
-        f.write("\n")
+        f.write(json.dumps(data) + "\n")
 
 
 @app.route("/gps", methods=["POST"])
 def receber_dados():
+    if not aceitando_dados:
+        return (
+            jsonify(
+                {"status": "error", "mensagem": "Servidor não está aceitando dados"}
+            ),
+            503,
+        )
     dados = request.json
     save_data(dados)
     hora_atual = datetime.datetime.now() - datetime.timedelta(hours=3)
@@ -54,14 +53,28 @@ def start_server_route():
         response.headers.add("Access-Control-Allow-Origin", "*")
         response.headers.add("Access-Control-Allow-Headers", "*")
         response.headers.add("Access-Control-Allow-Methods", "*")
-        return response
+        return response, 200
+    global aceitando_dados
+    aceitando_dados = True
     return jsonify({"status": "success", "message": "Server started"})
+
 
 @app.route("/historico")  # <-- Adicione esta rota
 def historico():
     return send_from_directory(".", "templates/historico.html")
-    
-@app.route('/process-data', methods=['POST'])
+
+
+@app.route("/stop-server", methods=["POST"])
+def stop_server_route():
+    global aceitando_dados
+    aceitando_dados = False
+    return (
+        jsonify({"status": "success", "message": "Servidor parou de receber dados!"}),
+        200,
+    )
+
+
+@app.route("/process-data", methods=["POST"])
 def process_data():
     try:
         # Run your data processing script
@@ -88,6 +101,8 @@ def start_server():
 
 
 def stop_server():
+    global aceitando_dados
+    aceitando_dados = False
     os.kill(os.getpid(), signal.SIGINT)
 
 

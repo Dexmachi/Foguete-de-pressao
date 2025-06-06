@@ -4,15 +4,14 @@ from datetime import datetime
 from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
 import sys
-import webbrowser
 
 
 def process_data():
     print("Processando dados...")
 
     # Lê JSON Lines
-    with open("dadosRecebidos.json", "r") as f:
-        registros = json.load(f)
+    with open("dadosRecebidos.json", "r", encoding="utf-8") as f:
+        registros = [json.loads(linha) for linha in f if linha.strip()]
 
     # Ordena por data+hora
     registros.sort(

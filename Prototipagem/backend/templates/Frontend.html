@@ -120,13 +120,13 @@
                     <!-- Start Button -->
                     <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="postMessage()">
                         <i class="fas fa-paper-plane mr-2"></i>
-                        enviar para base
+                        Coletar coordenadas
                     </button>
                     
                     <!-- Stop Button (Initially Hidden) -->
                     <button id="stop-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden" onclick="stopMeasurement()">
                         <i class="fas fa-stop mr-2"></i>
-                        parar teste
+                        Gerar gráfico
                     </button>
 
                     <button id="histórico" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="window.location.href='/historico'">
@@ -263,6 +263,8 @@
         
         async function stopMeasurement() {
             try {
+                await fetch('/stop-server', { method: 'POST' });
+
                 const response = await fetch('/process-data', {
                     method: 'POST',
                     headers: {
