@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 def plotar_graficos(
-    tempos, espacos, resultados
+    tempos, espacos, resultados, save_path="static/grafico.png"
 ):  # Função para plotar gráficos com base nos dados de tempo, espaço e resultados
     df_espaco = pd.DataFrame(
         {"Tempo": tempos, "Espaço": espacos}
@@ -84,5 +84,5 @@ def plotar_graficos(
         )  # Plota acelerações
         plt.title("Aceleração em função do tempo")  # Título do gráfico
 
-    plt.tight_layout()  # Ajusta o layout para evitar sobreposição
-    plt.savefig("static/grafico.png")
+    plt.tight_layout()
+    plt.savefig(save_path)

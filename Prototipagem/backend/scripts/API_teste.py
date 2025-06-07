@@ -3,6 +3,8 @@ import requests
 from datetime import datetime, timedelta
 import random
 
+"""API não tem nada a haver com o servidor/programa, é apenas um teste para enviar dados para o servidor"""
+
 url = "http://localhost:5000/gps"  # Endpoint do seu backend
 
 # Parâmetros iniciais para simulação

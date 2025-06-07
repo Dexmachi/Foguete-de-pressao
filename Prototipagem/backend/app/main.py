@@ -4,13 +4,21 @@ from datetime import datetime
 from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
 import sys
+import os
 
 
 def process_data():
+    global VELOCIDADE_MEDIA
     print("Processando dados...")
 
-    # Lê JSON Lines
-    with open("dadosRecebidos.json", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    dados_recebidos = os.path.join(base_dir, "data", "dadosRecebidos.json")
+    static_dir = os.path.join(base_dir, "static")
+    if not os.path.exists(static_dir):
+        os.makedirs(static_dir)
+
+    # Lê sempre do /data/dadosRecebidos.json na raiz do projeto
+    with open(dados_recebidos, "r", encoding="utf-8") as f:
         registros = [json.loads(linha) for linha in f if linha.strip()]
 
     # Ordena por data+hora
@@ -55,8 +63,17 @@ def process_data():
     print(f"Velocidade média: {resultados['velocidade_media']:.2f} m/s")
     print(f"Aceleração média: {resultados['aceleracao_media']:.2f} m/s²")
 
+    # Salva a velocidade média em um arquivo para o frontend
+    with open(os.path.join(static_dir, "velocidade_media.txt"), "w") as f:
+        f.write(str(resultados["velocidade_media"]))
+
     # Plota gráficos
-    plotar_graficos(tempos, distancias, resultados)
+    plotar_graficos(
+        tempos,
+        distancias,
+        resultados,
+        save_path=os.path.join(static_dir, "grafico.png"),
+    )
 
     # Abre o frontend novamente para mostrar os resultados
     # webbrowser.open('Frontend.html')

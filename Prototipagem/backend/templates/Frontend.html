@@ -247,7 +247,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({distance: selectedDistance}),
+                    body: JSON.stringify({ distancia: selectedDistance }), // <-- padronize o nome do campo
                 });
                 
                 if (response.ok) {
@@ -269,29 +269,45 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                    },
+                    body: JSON.stringify({ distancia: selectedDistance })
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Server error');
+                    const errorText = await response.text();
+                    throw new Error(`Server error: ${response.status} - ${errorText}`);
                 }
                 
                 const data = await response.json();
                 
                 if (data.status === 'success') {
-                    // Update the UI with the new graph
-                    document.querySelector('.panel-content').innerHTML = 
-                        `<img src="/static/grafico.png?${Date.now()}" alt="Results" class="w-full">`;
+                    // Limpa o conteúdo atual
+                    const panelContent = document.querySelector('.panel-content');
+                    panelContent.innerHTML = '';
+                    
+                    // Cria e configura a imagem
+                    const img = new Image();
+                    img.src = `/static/grafico.png?t=${Date.now()}`; // Adiciona timestamp para evitar cache
+                    img.alt = "Resultados";
+                    img.className = "w-full";
+                    
+                    // Adiciona listener para verificar se a imagem carregou
+                    img.onload = () => {
+                        panelContent.appendChild(img);
+                        showToast('Success', 'Gráfico gerado com sucesso!', 'success');
+                    };
+                    
+                    img.onerror = () => {
+                        showToast('Error', 'Erro ao carregar o gráfico', 'error');
+                        panelContent.innerHTML = '<div class="text-center text-dark-400"><i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i><p>Erro ao carregar o gráfico.</p></div>';
+                    };
                     
                     // Update velocity display
                     document.getElementById('velocity-info').textContent = 
                         `${data.velocity.toFixed(2)} m/s`;
-                    
-                    showToast('Success', 'Data processed!', 'success');
                 } else {
                     throw new Error(data.message || 'Processing failed');
                 }
-                
             } catch (error) {
                 showToast('Error', error.message, 'error');
                 console.error('Processing error:', error);
@@ -300,7 +316,7 @@
             // Reset UI
             document.getElementById('stop-btn').classList.add('hidden');
             document.getElementById('start-btn').classList.remove('hidden');
-            document.getElementById('status-info').textContent = 'Ready';
+            document.getElementById('status-info').textContent = 'Pronto';
         }
         
         function showToast(title, message, type) {
