@@ -147,13 +147,23 @@
                     <i class="fas fa-chart-line text-blue-400 mr-2"></i>
                     <span>Gráficos</span>
                 </div>
-                <div class="panel-content">
+                <div class="panel-content" id="panel-grafico">
                     <div class="flex items-center justify-center h-full">
                         <div class="text-center text-dark-400">
                             <i class="fas fa-chart-bar text-4xl mb-2 text-dark-500"></i>
                             <p>Gráficos aparecerão aqui assim que o teste for finalizado.</p>
                         </div>
                     </div>
+                </div>
+            </div>
+            <!-- Trajetória Panel -->
+            <div class="panel" id="panel-mapa" style="display:none;">
+                <div class="panel-header">
+                    <i class="fas fa-route text-blue-400 mr-2"></i>
+                    <span>Trajetória do Foguete</span>
+                </div>
+                <div class="panel-content">
+                    <iframe id="iframe-mapa" src="" width="100%" height="400" style="border:0;" allowfullscreen loading="lazy"></iframe>
                 </div>
             </div>
             
@@ -272,37 +282,38 @@
                     },
                     body: JSON.stringify({ distancia: selectedDistance })
                 });
-                
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     throw new Error(`Server error: ${response.status} - ${errorText}`);
                 }
-                
+
                 const data = await response.json();
-                
+
                 if (data.status === 'success') {
-                    // Limpa o conteúdo atual
-                    const panelContent = document.querySelector('.panel-content');
-                    panelContent.innerHTML = '';
-                    
-                    // Cria e configura a imagem
+                    // Atualiza apenas o painel de gráfico
+                    const panelGrafico = document.getElementById('panel-grafico');
+                    panelGrafico.innerHTML = '';
                     const img = new Image();
-                    img.src = `/static/grafico.png?t=${Date.now()}`; // Adiciona timestamp para evitar cache
+                    img.src = `/static/grafico.png?t=${Date.now()}`;
                     img.alt = "Resultados";
                     img.className = "w-full";
-                    
-                    // Adiciona listener para verificar se a imagem carregou
                     img.onload = () => {
-                        panelContent.appendChild(img);
+                        panelGrafico.appendChild(img);
                         showToast('Success', 'Gráfico gerado com sucesso!', 'success');
                     };
-                    
                     img.onerror = () => {
                         showToast('Error', 'Erro ao carregar o gráfico', 'error');
-                        panelContent.innerHTML = '<div class="text-center text-dark-400"><i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i><p>Erro ao carregar o gráfico.</p></div>';
+                        panelGrafico.innerHTML = '<div class="text-center text-dark-400"><i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i><p>Erro ao carregar o gráfico.</p></div>';
                     };
+
+                    // Exibe o painel do mapa e atualiza o iframe
+                    const panelMapa = document.getElementById('panel-mapa');
+                    const iframeMapa = document.getElementById('iframe-mapa');
+                    iframeMapa.src = "/static/trajetoria.html?t=" + Date.now();
+                    panelMapa.style.display = '';
                     
-                    // Update velocity display
+                    // Atualiza velocidade
                     document.getElementById('velocity-info').textContent = 
                         `${data.velocity.toFixed(2)} m/s`;
                 } else {
@@ -312,7 +323,7 @@
                 showToast('Error', error.message, 'error');
                 console.error('Processing error:', error);
             }
-            
+
             // Reset UI
             document.getElementById('stop-btn').classList.add('hidden');
             document.getElementById('start-btn').classList.remove('hidden');
@@ -329,7 +340,7 @@
             toastTitle.textContent = title;
             toastMessage.textContent = message;
             
-            // Set icon and color based on type
+            // Set icon and color based on typed color based on type
             switch(type) {
                 case 'success':
                 case 'sucesso':
@@ -340,16 +351,17 @@
                     toastIcon.className = 'fas fa-exclamation-circle text-red-400 text-xl';
                     break;
                 case 'info':
+                case 'info':
                     toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
-                    break;
+                    break;;
                 default:
                     toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
             }
             
             // Show toast
             toast.classList.add('show');
-            
-            // Hide after 3 seconds
+               
+            // Hide after 3 seconds/ Hide after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);

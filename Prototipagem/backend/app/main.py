@@ -7,6 +7,24 @@ import sys
 import os
 
 
+def gerar_mapa_trajetoria(registros, save_path):
+    import folium
+
+    # Extrai coordenadas
+    coords = [(r["latitude"], r["longitude"]) for r in registros]
+    if not coords:
+        return
+
+    # Centraliza o mapa no primeiro ponto
+    m = folium.Map(location=coords[0], zoom_start=17)
+    folium.PolyLine(coords, color="blue", weight=5, opacity=0.8).add_to(m)
+    folium.Marker(coords[0], tooltip="Início", icon=folium.Icon(color="green")).add_to(
+        m
+    )
+    folium.Marker(coords[-1], tooltip="Fim", icon=folium.Icon(color="red")).add_to(m)
+    m.save(save_path)
+
+
 def process_data():
     global VELOCIDADE_MEDIA
     print("Processando dados...")
@@ -74,6 +92,9 @@ def process_data():
         resultados,
         save_path=os.path.join(static_dir, "grafico.png"),
     )
+
+    # Gera o mapa da trajetória
+    gerar_mapa_trajetoria(registros, os.path.join(static_dir, "trajetoria.html"))
 
     # Abre o frontend novamente para mostrar os resultados
     # webbrowser.open('Frontend.html')
