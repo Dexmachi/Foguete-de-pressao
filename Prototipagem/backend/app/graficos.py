@@ -40,13 +40,13 @@ def plotar_graficos(
     sns.lineplot(
         data=df_espaco, x="Tempo", y="Espaço", marker="o"
     )  # Plota espaço vs tempo com marcadores
-    plt.title("Espaço em função do tempo")  # Título do gráfico
+    plt.title("Espaço percorrido em função do tempo (m/s)")  # Título do gráfico
 
     plt.subplot(1, 3, 2)  # Segundo gráfico (posição 2 de 3)
     sns.lineplot(
         data=df_vel, x="Tempo", y="Velocidade", hue="Tipo", style="Tipo", markers=True
     )  # Plota velocidades
-    plt.title("Velocidade em função do tempo")  # Título do gráfico
+    plt.title("Velocidade em função do tempo (m/s)")  # Título do gráfico
 
     if len(resultados["aceleracoes"]) > 0:  # Se houver dados de aceleração disponíveis
         df_aceleracao = pd.DataFrame(
@@ -82,7 +82,7 @@ def plotar_graficos(
             style="Tipo",
             markers=True,
         )  # Plota acelerações
-        plt.title("Aceleração em função do tempo")  # Título do gráfico
+        plt.title("Aceleração em função do tempo (m/s²)")  # Título do gráfico
 
     plt.tight_layout()
     plt.savefig(save_path)
