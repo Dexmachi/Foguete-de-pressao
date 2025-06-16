@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distance Control</title>
+    <title>Gráficos de Lançamento</title>
+    <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -95,8 +96,8 @@
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
-                    <i class="fas fa-ruler-combined text-blue-400 text-2xl mr-2"></i>
-                    <span class="text-xl font-semibold text-dark-100">DashB</span>
+                    <i class="fas fa-rocket text-blue-400 text-2xl mr-2"></i>
+                    <span class="text-xl font-semibold text-dark-100">Painel de Análise de Lançamento</span>
                 </div>
                 
                 <!-- Control Buttons -->
@@ -105,7 +106,7 @@
                     <div class="relative">
                         <button id="dropdown-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow">
                             <i class="fas fa-arrows-alt-v mr-2"></i>
-                            <span id="selected-distance">Selecione distancia de teste</span>
+                            <span id="selected-distance">Selecione distância de lançamento</span>
                             <i class="fas fa-chevron-down ml-2 text-xs"></i>
                         </button>
                         <div id="dropdown-menu" class="dropdown-menu">
@@ -119,14 +120,14 @@
                     
                     <!-- Start Button -->
                     <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="postMessage()">
-                        <i class="fas fa-paper-plane mr-2"></i>
+                        <i class="fas fa-broadcast-tower mr-2"></i>
                         Coletar coordenadas
                     </button>
                     
                     <!-- Stop Button (Initially Hidden) -->
                     <button id="stop-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden" onclick="stopMeasurement()">
-                        <i class="fas fa-stop mr-2"></i>
-                        Gerar gráfico
+                        <i class="fas fa-chart-line mr-2 text-white"></i>
+                        Plotar gráficos
                     </button>
 
                     <button id="histórico" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="window.location.href='/historico'">
@@ -151,7 +152,7 @@
                     <div class="flex items-center justify-center h-full">
                         <div class="text-center text-dark-400">
                             <i class="fas fa-chart-bar text-4xl mb-2 text-dark-500"></i>
-                            <p>Gráficos aparecerão aqui assim que o teste for finalizado.</p>
+                            <p>Gráficos disponíveis após a conclusão do lançamento.</p>
                         </div>
                     </div>
                 </div>
@@ -177,14 +178,14 @@
                     <div class="space-y-4">
                         <div>
                             <h3 class="text-sm font-medium text-dark-300">Status atual</h3>
-                            <p id="status-info" class="text-dark-100 mt-1">fora de teste</p>
+                            <p id="status-info" class="text-dark-100 mt-1">Pronto, aguardando ação...</p>
                         </div>
                         <div>
-                            <h3 class="text-sm font-medium text-dark-300">distancia selecionada</h3>
+                            <h3 class="text-sm font-medium text-dark-300">Distância selecionada</h3>
                             <p id="distance-info" class="text-dark-100 mt-1">0 metros</p>
                         </div>
                         <div>
-                            <h3 class="text-sm font-medium text-dark-300">velocidade media</h3>
+                            <h3 class="text-sm font-medium text-dark-300">Velocidade média</h3>
                             <p id="velocity-info" class="text-dark-100 mt-1">0 m/s</p>
                         </div>
                     </div>
@@ -242,13 +243,13 @@
         
         async function postMessage() {
             if (!selectedDistance) {
-                showToast('Erro', 'Por favor, selecione uma distância para o teste!', 'erro');
+                showToast('Erro', 'Por favor, selecione uma distância para o lançamento!', 'erro');
                 return;
             }
             
             document.getElementById('start-btn').classList.add('hidden');
             document.getElementById('stop-btn').classList.remove('hidden');
-            document.getElementById('status-info').textContent = 'em teste...';
+            document.getElementById('status-info').textContent = 'Coletando dados GPS...';
             
             try {
                 // Start the server via fetch API
@@ -261,7 +262,7 @@
                 });
                 
                 if (response.ok) {
-                    showToast('Servidor', 'Servidor iniciado com sucesso', 'success');
+                    showToast('Servidor', 'Servidor iniciado e pronto para receber coordenadas...', 'success');
                 } else {
                     throw new Error('Failed to start server');
                 }
@@ -300,7 +301,7 @@
                     img.className = "w-full";
                     img.onload = () => {
                         panelGrafico.appendChild(img);
-                        showToast('Success', 'Gráfico gerado com sucesso!', 'success');
+                        showToast('Success', 'Gráficos gerados com sucesso!', 'success');
                     };
                     img.onerror = () => {
                         showToast('Error', 'Erro ao carregar o gráfico', 'error');
@@ -327,7 +328,7 @@
             // Reset UI
             document.getElementById('stop-btn').classList.add('hidden');
             document.getElementById('start-btn').classList.remove('hidden');
-            document.getElementById('status-info').textContent = 'Pronto';
+            document.getElementById('status-info').textContent = 'Lançamento registrado';
         }
         
         function showToast(title, message, type) {
