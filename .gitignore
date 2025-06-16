@@ -10,3 +10,4 @@ venv/
 Prototipagem/backend/__pycache__
 .ruff_cache/
 .pytest_cache/
+__pycache__/
