@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_500197a41743badd7b6c9271b6cad8a6 {
+                #map_b54a5fe42f6b75730339bffe4787fc87 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -54,16 +54,16 @@
 <body>
     
     
-            <div class="folium-map" id="map_500197a41743badd7b6c9271b6cad8a6" ></div>
+            <div class="folium-map" id="map_b54a5fe42f6b75730339bffe4787fc87" ></div>
         
 </body>
 <script>
     
     
-            var map_500197a41743badd7b6c9271b6cad8a6 = L.map(
-                "map_500197a41743badd7b6c9271b6cad8a6",
+            var map_b54a5fe42f6b75730339bffe4787fc87 = L.map(
+                "map_b54a5fe42f6b75730339bffe4787fc87",
                 {
-                    center: [-23.55038, -46.63352],
+                    center: [-23.55025, -46.633556],
                     crs: L.CRS.EPSG3857,
                     ...{
   "zoom": 17,
@@ -78,7 +78,7 @@
 
         
     
-            var tile_layer_31f8c4aaf07c63ccbb3745a8b0280a59 = L.tileLayer(
+            var tile_layer_1dc86b98c9b6d07cb8df93bf2d4600d6 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -95,23 +95,23 @@
             );
         
     
-            tile_layer_31f8c4aaf07c63ccbb3745a8b0280a59.addTo(map_500197a41743badd7b6c9271b6cad8a6);
+            tile_layer_1dc86b98c9b6d07cb8df93bf2d4600d6.addTo(map_b54a5fe42f6b75730339bffe4787fc87);
         
     
-            var poly_line_d542ac70533e7ba5bd4b06975df23ec7 = L.polyline(
-                [[-23.55038, -46.63352], [-23.55031, -46.63365], [-23.55016, -46.633709], [-23.55003, -46.633816], [-23.54996, -46.633949], [-23.5499, -46.634084], [-23.54981, -46.634181], [-23.54968, -46.63431], [-23.54957, -46.634379]],
+            var poly_line_4cb0244428a06a5f7981fee4ef76cf1f = L.polyline(
+                [[-23.55025, -46.633556], [-23.55013, -46.633611], [-23.55001, -46.633691], [-23.54994, -46.633837], [-23.54982, -46.633955], [-23.54971, -46.634029], [-23.54966, -46.634132], [-23.54955, -46.634257]],
                 {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 5}
-            ).addTo(map_500197a41743badd7b6c9271b6cad8a6);
+            ).addTo(map_b54a5fe42f6b75730339bffe4787fc87);
         
     
-            var marker_7af5f3711d079e6cb52522f5b9ca6fe9 = L.marker(
-                [-23.55038, -46.63352],
+            var marker_aa94f0667536f1f9c0313f65a7049a3b = L.marker(
+                [-23.55025, -46.633556],
                 {
 }
-            ).addTo(map_500197a41743badd7b6c9271b6cad8a6);
+            ).addTo(map_b54a5fe42f6b75730339bffe4787fc87);
         
     
-            var icon_22e6b2fe9e74f334c48062c5840634bf = L.AwesomeMarkers.icon(
+            var icon_3c3c548f05c911852a6a034cbd1d409b = L.AwesomeMarkers.icon(
                 {
   "markerColor": "green",
   "iconColor": "white",
@@ -122,7 +122,7 @@
             );
         
     
-            marker_7af5f3711d079e6cb52522f5b9ca6fe9.bindTooltip(
+            marker_aa94f0667536f1f9c0313f65a7049a3b.bindTooltip(
                 `<div>
                      Início
                  </div>`,
@@ -132,17 +132,17 @@
             );
         
     
-                marker_7af5f3711d079e6cb52522f5b9ca6fe9.setIcon(icon_22e6b2fe9e74f334c48062c5840634bf);
+                marker_aa94f0667536f1f9c0313f65a7049a3b.setIcon(icon_3c3c548f05c911852a6a034cbd1d409b);
             
     
-            var marker_e352c416e9150d82ee6949d12cd54216 = L.marker(
-                [-23.54957, -46.634379],
+            var marker_719c2f1aa1f1e0057fc74a9cc7a47466 = L.marker(
+                [-23.54955, -46.634257],
                 {
 }
-            ).addTo(map_500197a41743badd7b6c9271b6cad8a6);
+            ).addTo(map_b54a5fe42f6b75730339bffe4787fc87);
         
     
-            var icon_d576122d66d9f6feeaf8ae39e22c0a91 = L.AwesomeMarkers.icon(
+            var icon_82b382cedd41ec9e98745a4966b72b23 = L.AwesomeMarkers.icon(
                 {
   "markerColor": "red",
   "iconColor": "white",
@@ -153,7 +153,7 @@
             );
         
     
-            marker_e352c416e9150d82ee6949d12cd54216.bindTooltip(
+            marker_719c2f1aa1f1e0057fc74a9cc7a47466.bindTooltip(
                 `<div>
                      Fim
                  </div>`,
@@ -163,7 +163,7 @@
             );
         
     
-                marker_e352c416e9150d82ee6949d12cd54216.setIcon(icon_d576122d66d9f6feeaf8ae39e22c0a91);
+                marker_719c2f1aa1f1e0057fc74a9cc7a47466.setIcon(icon_82b382cedd41ec9e98745a4966b72b23);
             
 </script>
 </html>
