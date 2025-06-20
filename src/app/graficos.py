@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plotar_graficos(tempos, espacos, resultados, save_path="static/grafico.png"):
+def plotar_graficos(tempos, espacos, resultados, save_dir="static"):
     df_espaco = pd.DataFrame({"Tempo": tempos, "Espaço": espacos})
 
     df_velocidade = pd.DataFrame(
@@ -25,6 +25,26 @@ def plotar_graficos(tempos, espacos, resultados, save_path="static/grafico.png")
 
     df_vel = pd.concat([df_velocidade, df_vel_media])
 
+    # Verifica se há aceleração
+    tem_acel = len(resultados["aceleracoes"]) > 0
+
+    if tem_acel:
+        df_aceleracao = pd.DataFrame(
+            {
+                "Tempo": tempos[2:],
+                "Aceleração": resultados["aceleracoes"],
+                "Tipo": "Aceleração instantânea",
+            }
+        )
+        df_acel_media = pd.DataFrame(
+            {
+                "Tempo": [tempos[0], tempos[-1]],
+                "Aceleração": [resultados["aceleracao_media"]] * 2,
+                "Tipo": "Aceleração média",
+            }
+        )
+        df_acel = pd.concat([df_aceleracao, df_acel_media])
+
     g = 9.8
     theta = np.radians(45)
     alcance = espacos[-1]
@@ -37,15 +57,14 @@ def plotar_graficos(tempos, espacos, resultados, save_path="static/grafico.png")
     else:
         altitudes = np.zeros_like(tempos)
 
-    plt.figure(figsize=(30, 5))
+    # --- Gráfico 1 e 2 (Espaço x Tempo + Velocidade x Tempo) ---
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-    plt.subplot(1, 5, 1)
-    sns.lineplot(data=df_espaco, x="Tempo", y="Espaço", marker="o")
-    plt.title("Espaço percorrido em função do tempo (m)")
-    plt.xlabel("Tempo (s)")
-    plt.ylabel("Espaço (m)")
+    sns.lineplot(data=df_espaco, x="Tempo", y="Espaço", marker="o", ax=axs[0])
+    axs[0].set_title("Espaço percorrido em função do tempo (m)")
+    axs[0].set_xlabel("Tempo (s)")
+    axs[0].set_ylabel("Espaço (m)")
 
-    plt.subplot(1, 5, 2)
     sns.lineplot(
         data=df_vel,
         x="Tempo",
@@ -53,31 +72,21 @@ def plotar_graficos(tempos, espacos, resultados, save_path="static/grafico.png")
         hue="Tipo",
         style="Tipo",
         markers=True,
+        ax=axs[1],
     )
-    plt.xlabel("Tempo (s)")
-    plt.ylabel("Velocidade (m/s)")
-    plt.title("Velocidade em função do tempo (m/s)")
+    axs[1].set_title("Velocidade em função do tempo (m/s)")
+    axs[1].set_xlabel("Tempo (s)")
+    axs[1].set_ylabel("Velocidade (m/s)")
 
-    if len(resultados["aceleracoes"]) > 0:
-        df_aceleracao = pd.DataFrame(
-            {
-                "Tempo": tempos[2:],
-                "Aceleração": resultados["aceleracoes"],
-                "Tipo": "Aceleração instantânea",
-            }
-        )
+    plt.tight_layout()
+    plt.savefig(f"{save_dir}/grafico_1_2.png")
+    plt.close()
 
-        df_acel_media = pd.DataFrame(
-            {
-                "Tempo": [tempos[0], tempos[-1]],
-                "Aceleração": [resultados["aceleracao_media"]] * 2,
-                "Tipo": "Aceleração média",
-            }
-        )
+    # --- Gráfico 3 e 4 (Aceleração x Tempo e Trajetória física) ---
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-        df_acel = pd.concat([df_aceleracao, df_acel_media])
-
-        plt.subplot(1, 5, 3)
+    # Gráfico 3: aceleração ou espaço em branco se não houver
+    if tem_acel:
         sns.lineplot(
             data=df_acel,
             x="Tempo",
@@ -85,106 +94,93 @@ def plotar_graficos(tempos, espacos, resultados, save_path="static/grafico.png")
             hue="Tipo",
             style="Tipo",
             markers=True,
+            ax=axs[0],
         )
-        plt.xlabel("Tempo (s)")
-        plt.ylabel("Aceleração (m/s²)")
-        plt.title("Aceleração em função do tempo (m/s²)")
+        axs[0].set_title("Aceleração em função do tempo (m/s²)")
+        axs[0].set_xlabel("Tempo (s)")
+        axs[0].set_ylabel("Aceleração (m/s²)")
+    else:
+        axs[0].text(
+            0.5, 0.5, "Sem dados de aceleração", ha="center", va="center", fontsize=14
+        )
+        axs[0].axis("off")
 
-    plt.subplot(1, 5, 4)
-    plt.plot(tempos, altitudes, marker="o")
-    plt.title("Altitude estimada em função do tempo (m)")
-    plt.xlabel("Tempo (s)")
-    plt.ylabel("Altitude (m)")
-
-    # === NOVO: Simulação física da trajetória ===
-
-    # Parâmetros físicos do foguete (ajuste conforme o experimento real)
-    p0 = 5e5  # Pressão inicial do ar dentro da garrafa (em Pascal) — ex: 5 atm
-    pa = 1e5  # Pressão atmosférica (em Pascal) — geralmente 1 atm
+    # Gráfico 4: Trajetória física (simulação)
+    """
+        Este gráfico é uma alternativa para a estimativa da altitude do foguete, ou seja, é uma simulação numérica baseada na dinâmica de projéteis, considerando a expansão adiabática do gás dentro da garrafa, o empuxo gerado pela saída da água pelo bocal, forças atuantes(empuxo, gravidade e efeito de perda da massa) e o movimento balístico do foguete após o esgotamento da água.
+        
+        Usado como base o arquivo para estimativa da trajetória do foguete encontrado no aprender.
+        
+        Será usada enquanto não tiver dados sobre a altitude real do foguete.
+    
+    """
+    # Parâmetros necessários para a simulação
+    p0 = 5e5  # Pressão inicial do tanque de água (Pa)
+    pa = 1e5  # Pressão atmosférica ambiente (Pa)
     rho = 1000  # Densidade da água (kg/m³)
-    V0 = 0.001  # Volume inicial de água (m³) — por exemplo, 1 litro
-    Vg0 = 0.001  # Volume inicial do ar comprimido na garrafa (m³)
-    Ac = 0.002  # Área da seção transversal da garrafa (m²) — raio ~2,5 cm
-    At = 0.0001  # Área da tubeira (m²) — ex: diâmetro 1,1 cm
-    theta0 = np.radians(45)  # Ângulo de lançamento convertido para radianos (45°)
-    me = 0.15  # Massa da estrutura do foguete sem a água (kg)
-    gamma = 1.4  # Expoente adiabático do ar (para expansão adiabática)
-    dt = 0.01  # Passo de tempo da simulação (em segundos)
+    V0 = 0.001  # Volume inicial da água no tanque (m³)
+    Vg0 = 0.001  # Volume inicial do gás no tanque (m³)
+    Ac = 0.002  # Área da câmara de compressão (m²)
+    At = 0.0001  # Área da garganta do bocal (m²)
+    theta0 = np.radians(45)  # Ângulo de lançamento (45 graus em radianos)
+    me = 0.15  # Massa do foguete vazio (kg)
+    gamma = 1.4  # Índice adiabático do gás (ar)
+    dt = 0.01  # Passo de tempo da simulação (s)
+    g = 9.81  # Aceleração da gravidade (m/s²)
 
-    # Inicializa listas para armazenar a trajetória horizontal (x) e vertical (y)
-    x, y = [0], [0]
-
-    # Usa a primeira velocidade registrada como velocidade inicial do foguete
-    v = (
+    x, y = [0], [0]  # Listas de posições X e Y, inicializadas na origem
+    v = (  # Velocidade inicial:
         resultados["velocidades"][0]
         if "velocidades" in resultados and len(resultados["velocidades"]) > 0
         else 0
-    )
+    )  # Pega a primeira velocidade calculada, ou 0 se não houver
 
-    Vg = Vg0  # Volume atual do ar comprimido
-    V = V0  # Volume atual de água
-    t = 0  # Tempo inicial da simulação
+    Vg = Vg0  # Volume inicial do gás no tanque (m³) - variável para simulação
+    V = V0  # Volume inicial da água no tanque (m³) - variável para simulação
+    t = 0  # Tempo inicial da simulação (s)
 
-    # Decompõe a velocidade inicial em componentes horizontal e vertical
-    vx = v * np.cos(theta0)
-    vy = v * np.sin(theta0)
+    vx = v * np.cos(theta0)  # Componente horizontal da velocidade inicial
+    vy = v * np.sin(theta0)  # Componente vertical da velocidade inicial
 
-    # === Fase propulsiva (enquanto houver água no foguete) ===
-    while V > 0:
-        # Calcula a pressão interna no instante atual, considerando expansão adiabática
-        p = p0 * (Vg0 / Vg) ** gamma
-        delta_p = max(p - pa, 0)  # Diferença de pressão entre o interior e o exterior
+    while V > 0:  # Enquanto houver água no tanque (motor ligado)
+        p = p0 * (Vg0 / Vg) ** gamma  # Pressão do gás após expansão adiabática
+        delta_p = max(p - pa, 0)  # Diferença de pressão efetiva (sempre >= 0)
+        ue = np.sqrt(
+            2 * delta_p / (rho * (1 - (At / Ac) ** 2))
+        )  # Velocidade de saída da água pelo bocal (m/s)
+        m_dot = rho * At * ue  # Vazão mássica da água (kg/s)
+        T = m_dot * ue  # Empuxo gerado (Newton)
+        m = me + rho * V  # Massa total do foguete com água restante (kg)
+        dv = (
+            T / m - g * np.sin(theta0) - v * (m_dot / m)
+        ) * dt  # Incremento da velocidade considerando forças
+        v += dv  # Atualiza a velocidade do foguete
+        dx = v * np.cos(theta0) * dt  # Incremento na posição horizontal
+        dy = v * np.sin(theta0) * dt  # Incremento na posição vertical
+        x.append(x[-1] + dx)  # Atualiza a posição X acumulada
+        y.append(
+            max(0, y[-1] + dy)
+        )  # Atualiza posição Y, não deixando abaixo do chão (y=0)
+        dV = m_dot * dt / rho  # Volume de água perdido no intervalo dt
+        V -= dV  # Atualiza volume da água no tanque
+        Vg += dV  # Atualiza volume do gás no tanque
+        t += dt  # Incrementa o tempo da simulação
 
-        # Velocidade de exaustão da água usando Bernoulli + conservação da massa
-        ue = np.sqrt(2 * delta_p / (rho * (1 - (At / Ac) ** 2)))
+    vx = v * np.cos(theta0)  # Componente horizontal da velocidade ao fim do motor
+    vy = v * np.sin(theta0)  # Componente vertical da velocidade ao fim do motor
 
-        # Vazão de massa da água que está saindo (kg/s)
-        m_dot = rho * At * ue
+    while y[-1] > 0:  # Enquanto o foguete estiver no ar (altura > 0)
+        vy -= g * dt  # Atualiza velocidade vertical considerando a gravidade (queda)
+        x.append(x[-1] + vx * dt)  # Atualiza posição horizontal
+        y.append(
+            max(0, y[-1] + vy * dt)
+        )  # Atualiza posição vertical, mantendo ≥ 0 (chão)
 
-        # Empuxo gerado pela água sendo ejetada
-        T = m_dot * ue
-
-        # Massa total atual do foguete (estrutura + água restante)
-        m = me + rho * V
-
-        # Calcula variação da velocidade com base no empuxo, gravidade e perda de massa
-        dv = (T / m - g * np.sin(theta0) - v * (m_dot / m)) * dt
-        v += dv  # Atualiza velocidade escalar
-
-        # Calcula deslocamento horizontal e vertical no intervalo de tempo dt
-        dx = v * np.cos(theta0) * dt
-        dy = v * np.sin(theta0) * dt
-
-        # Atualiza posições horizontal e vertical
-        x.append(x[-1] + dx)
-        y.append(max(0, y[-1] + dy))  # Garante que y nunca fique negativo
-
-        # Atualiza volume de água e volume de ar após ejeção
-        dV = m_dot * dt / rho
-        V -= dV
-        Vg += dV
-
-        # Atualiza tempo
-        t += dt
-
-    # === Fase balística (após a queima, movimento parabólico) ===
-
-    # Recalcula componentes da velocidade no fim da fase propulsiva
-    vx = v * np.cos(theta0)
-    vy = v * np.sin(theta0)
-
-    # Continua a simulação até o foguete tocar o chão (y <= 0)
-    while y[-1] > 0:
-        vy -= g * dt  # Apenas a gravidade atua no eixo vertical
-        x.append(x[-1] + vx * dt)  # Deslocamento horizontal constante
-        y.append(max(0, y[-1] + vy * dt))  # Deslocamento vertical com gravidade
-
-    # Plot da trajetória real
-    plt.subplot(1, 5, 5)
-    plt.plot(x, y, marker="o")
-    plt.title("Trajetória física do foguete")
-    plt.xlabel("Distância Horizontal (m)")
-    plt.ylabel("Distância Vertical - Altitude (m)")
+    axs[1].plot(x, y, marker="o")
+    axs[1].set_title("Trajetória física do foguete")
+    axs[1].set_xlabel("Distância Horizontal (m)")
+    axs[1].set_ylabel("Distância Vertical - Altitude (m)")
 
     plt.tight_layout()
-    plt.savefig(save_path)
+    plt.savefig(f"{save_dir}/grafico_3_4.png")
+    plt.close()

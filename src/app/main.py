@@ -90,7 +90,7 @@ def process_data():
         tempos,
         distancias,
         resultados,
-        save_path=os.path.join(static_dir, "grafico.png"),
+        save_dir=static_dir,
     )
 
     # Gera o mapa da trajetória

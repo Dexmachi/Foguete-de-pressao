@@ -294,31 +294,33 @@
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    // Atualiza apenas o painel de gráfico
                     const panelGrafico = document.getElementById('panel-grafico');
                     panelGrafico.innerHTML = '';
-                    const img = new Image();
-                    img.src = `/static/grafico.png?t=${Date.now()}`;
-                    img.alt = "Resultados";
-                    img.className = "w-full";
-                    img.onload = () => {
-                        panelGrafico.appendChild(img);
-                        showToast('Success', 'Gráficos gerados com sucesso!', 'success');
-                    };
-                    img.onerror = () => {
-                        showToast('Error', 'Erro ao carregar o gráfico', 'error');
-                        panelGrafico.innerHTML = '<div class="text-center text-dark-400"><i class="fas fa-exclamation-circle text-4xl mb-2 text-red-500"></i><p>Erro ao carregar o gráfico.</p></div>';
-                    };
 
-                    // Exibe o painel do mapa e atualiza o iframe
+                    // Array com os nomes dos arquivos que seu backend gera
+                    const graficos = ['grafico_1_2.png', 'grafico_3_4.png'];
+
+                    graficos.forEach((nomeArquivo) => {
+                        const img = new Image();
+                        img.src = `/static/${nomeArquivo}?t=${Date.now()}`;
+                        img.alt = `Gráfico ${nomeArquivo}`;
+                        img.className = "w-full mb-4";
+                        img.onerror = () => {
+                            showToast('Error', `Erro ao carregar o gráfico ${nomeArquivo}`, 'error');
+                        };
+                        panelGrafico.appendChild(img);
+                    });
+
+                    // Atualiza o iframe do mapa normalmente
                     const panelMapa = document.getElementById('panel-mapa');
                     const iframeMapa = document.getElementById('iframe-mapa');
                     iframeMapa.src = "/static/trajetoria.html?t=" + Date.now();
                     panelMapa.style.display = '';
-                    
+
                     // Atualiza velocidade
-                    document.getElementById('velocity-info').textContent = 
-                        `${data.velocity.toFixed(2)} m/s`;
+                    document.getElementById('velocity-info').textContent = `${data.velocity.toFixed(2)} m/s`;
+
+                    showToast('Success', 'Gráficos gerados com sucesso!', 'success');
                 } else {
                     throw new Error(data.message || 'Processing failed');
                 }
@@ -332,6 +334,8 @@
             document.getElementById('start-btn').classList.remove('hidden');
             document.getElementById('status-info').textContent = 'Lançamento registrado';
         }
+
+
         
         function showToast(title, message, type) {
             const toast = document.getElementById('toast');
