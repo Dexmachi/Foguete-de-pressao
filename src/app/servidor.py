@@ -22,13 +22,35 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 DATA_DIR = os.path.join(BASE_DIR, "data")
-
+DATA_DIR_SAVE = os.path.join(BASE_DIR, "data/dadosSalvos")
+dados_selecionados_path = os.path.join(DATA_DIR, "dados10m.json")
+dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
 # Inicialização da aplicação Flask
 app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 CORS(app)
 
 
 # Rota para receber dados via POST
+
+@app.route("/settarTeste", methods=["POST"])
+def settar_teste():
+        try:
+            dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
+            dados_destino_path = os.path.join(DATA_DIR_SAVE, "dados(1)_10M_16-06-2025.json")
+
+            with open(dados_destino_path, "r", encoding="utf-8") as f_dest:
+                conteudo = f_dest.readlines()
+
+            with open(dados_recebidos_path, "w", encoding="utf-8") as f:
+                f.writelines(conteudo)
+
+            return jsonify({"status": "success", "message": "Dados carregados com sucesso"}), 200
+
+        except Exception as e:
+            logging.exception("Erro ao settar teste")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
+
 @app.route("/gps", methods=["POST"])
 def receber_dados():
     if not RECEBA_DADOS:
@@ -107,12 +129,24 @@ def process_data():
         req = request.get_json()
         distancia = req.get("distancia")
 
+        # =============inicio da criação do histórico=============
+        temp = []
+        with open(os.path.join(DATA_DIR, "dadosRecebidos.json"), "r", encoding="utf-8") as f:
+            for linha in f:
+                temp.append(json.loads(linha))
+        
+        data = temp[0]["data"].replace("/", "-")
+        
+        idT = len(os.listdir(DATA_DIR_SAVE))+1
+
         if distancia not in [10, 20, 30]:
             logging.warning(f"Distância inválida: {distancia}")
             return jsonify({"status": "error", "message": "Distância inválida"}), 400
 
         dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
-        dados_destino_path = os.path.join(DATA_DIR, f"dados{distancia}m.json")
+        dados_destino_path = os.path.join(DATA_DIR_SAVE, f"dados({idT})_{distancia}M_{data}.json")
+
+        # =============fim da criação do histórico=============
 
         try:
             with open(dados_recebidos_path, "r", encoding="utf-8") as f:
@@ -182,6 +216,81 @@ def process_data():
         msg = str(e)
         logging.exception(msg)
         return jsonify({"status": "error", "message": msg}), 500
+
+@app.route("/dadosHistorico", methods=["POST"])
+def dados_historico():
+    try:
+        dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
+
+
+        try:
+            with open(dados_recebidos_path, "r", encoding="utf-8") as f:
+                linhas = f.readlines()
+        except FileNotFoundError:
+            msg = "Arquivo de dados não encontrado."
+            logging.error(msg)
+            return jsonify({"status": "error", "message": msg}), 404
+
+        if not linhas or all(l.strip() == "" for l in linhas):
+            msg = "Nenhum dado para processar."
+            logging.warning(msg)
+            return jsonify({"status": "error", "message": msg}), 400
+
+        # Processa os dados (gera o gráfico)
+        logging.info("Iniciando subprocesso para gerar gráfico")
+        main_py_path = os.path.join(BASE_DIR, "app", "main.py")
+        result = subprocess.run(
+            ["python", main_py_path, "--process"], capture_output=True, text=True
+        )
+
+        if result.returncode == 0:
+            # Depois de gerar o gráfico, exclui os dados do arquivo de destino
+            try:
+                # Limpa o arquivo dadosRecebidos.json
+                with open(dados_recebidos_path, "w", encoding="utf-8") as f:
+                    f.write("")  # Limpa o arquivo escrevendo uma string vazia
+
+                # Lê a velocidade média do arquivo salvo
+                try:
+                    velocidade_media_path = os.path.join(
+                        STATIC_DIR, "velocidade_media.txt"
+                    )
+                    with open(velocidade_media_path, "r") as f:
+                        velocidade_media = float(f.read().strip())
+                except FileNotFoundError:
+                    velocidade_media = 0.0
+                    logging.warning(
+                        "Arquivo de velocidade_media não encontrado, usando 0.0"
+                    )
+                except Exception as e:
+                    velocidade_media = 0.0
+                    logging.exception(f"Erro ao ler velocidade média: {e}")
+
+                logging.info(f"Velocidade média calculada: {velocidade_media}")
+                return (
+                    jsonify(
+                        {
+                            "status": "success",
+                            "velocity": velocidade_media,
+                        }
+                    ),
+                    200,
+                )
+            except Exception as e:
+                msg = f"Erro ao salvar/limpar dados: {e}"
+                logging.exception(msg)
+                return jsonify({"status": "error", "message": msg}), 500
+        else:
+            msg = f"Erro no subprocesso: {result.stderr}"
+            logging.error(msg)
+            return jsonify({"status": "error", "message": msg}), 500
+
+    except Exception as e:
+        msg = str(e)
+        logging.exception(msg)
+        return jsonify({"status": "error", "message": msg}), 500
+    
+    
 
 
 # Função para salvar os dados

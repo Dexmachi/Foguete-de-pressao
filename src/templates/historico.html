@@ -243,6 +243,33 @@
       </div>
     </div>
 
-    <script></script>
+    <script>
+      async function settarTeste() {
+        try {
+          const response = await fetch("/settarTeste", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              `Erro do servidor: ${response.status} - ${result.message}`
+            );
+          }
+
+          console.log("Sucesso:", result.message);
+          alert("Dados do teste carregados com sucesso!");
+
+          // Aqui você poderia atualizar a UI, abrir modal, etc.
+        } catch (error) {
+          console.error("Erro ao settar teste:", error);
+          alert("Erro ao carregar dados do teste. Veja o console.");
+        }
+      }
+    </script>
   </body>
 </html>
