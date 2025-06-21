@@ -36,7 +36,7 @@ CORS(app)
 def settar_teste():
         try:
             dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
-            dados_destino_path = os.path.join(DATA_DIR_SAVE, "dados(1)_10M_16-06-2025.json")
+            dados_destino_path = os.path.join(DATA_DIR_SAVE, "dados(1)_20M_16-06-2025.json")
 
             with open(dados_destino_path, "r", encoding="utf-8") as f_dest:
                 conteudo = f_dest.readlines()
@@ -84,6 +84,11 @@ def receber_dados():
 def index():
     return render_template("Frontend.html")
 
+# Rota para o histórico
+@app.route("/historico")
+def historico():
+    return send_from_directory(BASE_DIR, "templates/historico.html")
+
 
 # Rota para iniciar o servidor
 @app.route("/start-server", methods=["POST"])
@@ -92,13 +97,6 @@ def start_server_route():
     RECEBA_DADOS = True
     logging.info("Servidor iniciado")
     return jsonify({"status": "success", "message": "Servidor iniciado"}), 200
-
-
-# Rota para o histórico
-@app.route("/historico")
-def historico():
-    return send_from_directory(BASE_DIR, "templates/historico.html")
-
 
 # Rota para arquivos estáticos
 @app.route("/static/<path:filename>")
@@ -173,6 +171,79 @@ def process_data():
             try:
                 with open(dados_destino_path, "a", encoding="utf-8") as f_dest:
                     f_dest.writelines(linhas)
+                # Limpa o arquivo dadosRecebidos.json
+                with open(dados_recebidos_path, "w", encoding="utf-8") as f:
+                    f.write("")  # Limpa o arquivo escrevendo uma string vazia
+
+                # Lê a velocidade média do arquivo salvo
+                try:
+                    velocidade_media_path = os.path.join(
+                        STATIC_DIR, "velocidade_media.txt"
+                    )
+                    with open(velocidade_media_path, "r") as f:
+                        velocidade_media = float(f.read().strip())
+                except FileNotFoundError:
+                    velocidade_media = 0.0
+                    logging.warning(
+                        "Arquivo de velocidade_media não encontrado, usando 0.0"
+                    )
+                except Exception as e:
+                    velocidade_media = 0.0
+                    logging.exception(f"Erro ao ler velocidade média: {e}")
+
+                logging.info(f"Velocidade média calculada: {velocidade_media}")
+                return (
+                    jsonify(
+                        {
+                            "status": "success",
+                            "velocity": velocidade_media,
+                        }
+                    ),
+                    200,
+                )
+            except Exception as e:
+                msg = f"Erro ao salvar/limpar dados: {e}"
+                logging.exception(msg)
+                return jsonify({"status": "error", "message": msg}), 500
+        else:
+            msg = f"Erro no subprocesso: {result.stderr}"
+            logging.error(msg)
+            return jsonify({"status": "error", "message": msg}), 500
+
+    except Exception as e:
+        msg = str(e)
+        logging.exception(msg)
+        return jsonify({"status": "error", "message": msg}), 500
+    
+
+@app.route("/process-data-h", methods=["POST"])
+def process_data_h():
+    try:
+        req = request.get_json()
+        distancia = req.get("distancia")
+        try:
+            with open(dados_recebidos_path, "r", encoding="utf-8") as f:
+                linhas = f.readlines()
+        except FileNotFoundError:
+            msg = "Arquivo de dados não encontrado."
+            logging.error(msg)
+            return jsonify({"status": "error", "message": msg}), 404
+
+        if not linhas or all(l.strip() == "" for l in linhas):
+            msg = "Nenhum dado para processar."
+            logging.warning(msg)
+            return jsonify({"status": "error", "message": msg}), 400
+
+        # Processa os dados (gera o gráfico)
+        logging.info("Iniciando subprocesso para gerar gráfico")
+        main_py_path = os.path.join(BASE_DIR, "app", "main.py")
+        result = subprocess.run(
+            ["python", main_py_path, "--process"], capture_output=True, text=True
+        )
+
+        if result.returncode == 0:
+            # Depois de gerar o gráfico, move os dados para o arquivo de destino
+            try:
                 # Limpa o arquivo dadosRecebidos.json
                 with open(dados_recebidos_path, "w", encoding="utf-8") as f:
                     f.write("")  # Limpa o arquivo escrevendo uma string vazia
