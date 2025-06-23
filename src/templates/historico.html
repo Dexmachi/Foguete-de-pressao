@@ -156,33 +156,8 @@
                     <th>Ações</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>2023-06-15 14:30:22</td>
-                    <td>10</td>
-                    <td>5.42</td>
-                    <td>
-                      <button
-                        class="text-blue-400 hover:text-blue-300 mr-2"
-                        onclick="settarTeste()"
-                      >
-                        <i class="fas fa-eye"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <!-- Mais linhas da tabela... -->
-                </tbody>
+                <tbody id="tabela-historico"></tbody>
               </table>
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-              <button disabled>&laquo;</button>
-              <button class="active">1</button>
-              <button>2</button>
-              <button>3</button>
-              <button>&raquo;</button>
             </div>
           </div>
         </div>
@@ -244,32 +219,57 @@
     </div>
 
     <script>
-      async function settarTeste() {
+      async function carregarHistorico() {
+        try {
+          const response = await fetch("/api/historico");
+          const testes = await response.json();
+
+          const tbody = document.getElementById("tabela-historico");
+          tbody.innerHTML = "";
+
+          testes.forEach((teste) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+          <td>${teste.id}</td>
+          <td>${teste.data_hora}</td>
+          <td>${teste.distancia}</td>
+          <td>${teste.velocidade}</td>
+          <td>
+            <button
+              class="text-blue-400 hover:text-blue-300 mr-2"
+              onclick="settarTeste('${teste.nome_arquivo}')"
+            >
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error("Erro ao carregar histórico:", err);
+        }
+      }
+
+      async function settarTeste(nomeArquivo) {
         try {
           const response = await fetch("/settarTeste", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
+            body: JSON.stringify({ arquivo: nomeArquivo }),
           });
 
           const result = await response.json();
-
-          if (!response.ok) {
-            throw new Error(
-              `Erro do servidor: ${response.status} - ${result.message}`
-            );
-          }
-
-          console.log("Sucesso:", result.message);
-          alert("Dados do teste carregados com sucesso!");
-
-          // Aqui você poderia atualizar a UI, abrir modal, etc.
-        } catch (error) {
-          console.error("Erro ao settar teste:", error);
-          alert("Erro ao carregar dados do teste. Veja o console.");
+          if (!response.ok) throw new Error(result.message);
+          alert("Dados carregados com sucesso!");
+        } catch (err) {
+          console.error("Erro ao settar teste:", err);
+          alert("Erro ao carregar teste.");
         }
       }
+
+      document.addEventListener("DOMContentLoaded", carregarHistorico);
     </script>
   </body>
 </html>

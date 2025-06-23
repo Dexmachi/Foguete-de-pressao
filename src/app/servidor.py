@@ -34,21 +34,63 @@ CORS(app)
 
 @app.route("/settarTeste", methods=["POST"])
 def settar_teste():
-        try:
-            dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
-            dados_destino_path = os.path.join(DATA_DIR_SAVE, "dados(1)_20M_16-06-2025.json")
+    try:
+        dados_recebidos_path = os.path.join(DATA_DIR, "dadosRecebidos.json")
+        req = request.get_json()
+        nome_arquivo = req.get("arquivo")
 
-            with open(dados_destino_path, "r", encoding="utf-8") as f_dest:
-                conteudo = f_dest.readlines()
+        if not nome_arquivo:
+            return jsonify({"status": "error", "message": "Arquivo não especificado"}), 400
 
-            with open(dados_recebidos_path, "w", encoding="utf-8") as f:
-                f.writelines(conteudo)
+        dados_destino_path = os.path.join(DATA_DIR_SAVE, nome_arquivo)
 
-            return jsonify({"status": "success", "message": "Dados carregados com sucesso"}), 200
+        with open(dados_destino_path, "r", encoding="utf-8") as f_dest:
+            conteudo = f_dest.readlines()
 
-        except Exception as e:
-            logging.exception("Erro ao settar teste")
-            return jsonify({"status": "error", "message": str(e)}), 500
+        with open(dados_recebidos_path, "w", encoding="utf-8") as f:
+            f.writelines(conteudo)
+
+        return jsonify({"status": "success", "message": "Dados carregados com sucesso"}), 200
+
+    except Exception as e:
+        logging.exception("Erro ao settar teste")
+        return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+@app.route("/api/historico", methods=["GET"])
+def listar_historico():
+    try:
+        arquivos = [
+            nome for nome in os.listdir(DATA_DIR_SAVE)
+            if nome.endswith(".json")
+        ]
+
+        resultado = []
+        for i, nome in enumerate(sorted(arquivos), start=1):
+            try:
+                caminho = os.path.join(DATA_DIR_SAVE, nome)
+                with open(caminho, "r", encoding="utf-8") as f:
+                    linhas = f.readlines()
+                    if not linhas:
+                        continue
+                    primeiro = json.loads(linhas[0])
+                    resultado.append({
+                        "id": i,
+                        "nome_arquivo": nome,
+                        "data_hora": primeiro.get("data_hora", "Desconhecido"),
+                        "distancia": primeiro.get("distancia", "N/A"),
+                        "velocidade": primeiro.get("velocidade", "N/A")
+                    })
+            except Exception as e:
+                logging.warning(f"Erro ao ler {nome}: {e}")
+                continue
+
+        return jsonify(resultado)
+    except Exception as e:
+        logging.exception("Erro ao listar histórico")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 
 
 @app.route("/gps", methods=["POST"])
@@ -219,8 +261,6 @@ def process_data():
 @app.route("/process-data-h", methods=["POST"])
 def process_data_h():
     try:
-        req = request.get_json()
-        distancia = req.get("distancia")
         try:
             with open(dados_recebidos_path, "r", encoding="utf-8") as f:
                 linhas = f.readlines()
