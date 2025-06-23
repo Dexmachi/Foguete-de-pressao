@@ -73,8 +73,20 @@ def process_data():
         print("Erro: número de tempos diferente de número de distâncias!")
         return
 
+    # Extrai as altitudes mandadas pelo BMP280
+    altitudes_abs = [r["altitude"] for r in registros]  # lista de altitudes absolutas
+    altitude_inicial = altitudes_abs[
+        0
+    ]  # usa a altitude do primeiro ponto como referência, ou seja, enquanto o foguete ainda não decolou
+    alturas = [
+        alt - altitude_inicial for alt in altitudes_abs
+    ]  # subtrai a altitude inicial de todas as altitudes
+
     # Calcula grandezas físicas
     resultados = calcular_movimento(tempos, distancias)
+
+    # Adiciona as altitudes aos resultados
+    resultados["alturas"] = alturas
 
     # Exibe resultados
     print("\nResultados:")
