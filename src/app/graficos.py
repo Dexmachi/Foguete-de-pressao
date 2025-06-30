@@ -1,10 +1,11 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def plotar_graficos(
-    tempos, espacos, resultados
+    tempos, espacos, resultados, save_path="static/grafico.png"
 ):  # Função para plotar gráficos com base nos dados de tempo, espaço e resultados
     df_espaco = pd.DataFrame(
         {"Tempo": tempos, "Espaço": espacos}
@@ -33,20 +34,31 @@ def plotar_graficos(
         [df_velocidade, df_vel_media]
     )  # Junta os dois DataFrames de velocidade (instantânea e média)
 
-    sns.set_style("whitegrid")  # Define o estilo do gráfico com grade branca
-    plt.figure(figsize=(15, 5))  # Define o tamanho da figura (largura x altura)
+    g = 9.8
+    theta = np.radians(45)
+    alcance = espacos[-1]  # distância total percorrida (horizontal)
+    if alcance > 0:
+        v0 = np.sqrt(alcance * g / np.sin(2 * theta))
+        v0y = v0 * np.sin(theta)
+        tempos_np = np.array(tempos)
+        altitudes = v0y * tempos_np - 0.5 * g * tempos_np**2
+        altitudes[altitudes < 0] = 0  # Não deixa altitude negativa
+    else:
+        altitudes = np.zeros_like(tempos)
 
-    plt.subplot(1, 3, 1)  # Primeiro gráfico (posição 1 de 3)
+    plt.figure(figsize=(20, 5))  # Ajusta o tamanho para 4 gráficos
+
+    plt.subplot(1, 4, 1)  # Primeiro gráfico (posição 1 de 4)
     sns.lineplot(
         data=df_espaco, x="Tempo", y="Espaço", marker="o"
     )  # Plota espaço vs tempo com marcadores
-    plt.title("Espaço em função do tempo")  # Título do gráfico
+    plt.title("Espaço percorrido em função do tempo (m)")  # Título do gráfico
 
-    plt.subplot(1, 3, 2)  # Segundo gráfico (posição 2 de 3)
+    plt.subplot(1, 4, 2)  # Segundo gráfico (posição 2 de 4)
     sns.lineplot(
         data=df_vel, x="Tempo", y="Velocidade", hue="Tipo", style="Tipo", markers=True
     )  # Plota velocidades
-    plt.title("Velocidade em função do tempo")  # Título do gráfico
+    plt.title("Velocidade em função do tempo (m/s)")  # Título do gráfico
 
     if len(resultados["aceleracoes"]) > 0:  # Se houver dados de aceleração disponíveis
         df_aceleracao = pd.DataFrame(
@@ -73,7 +85,7 @@ def plotar_graficos(
             [df_aceleracao, df_acel_media]
         )  # Junta os dois DataFrames de aceleração
 
-        plt.subplot(1, 3, 3)  # Terceiro gráfico (posição 3 de 3)
+        plt.subplot(1, 4, 3)  # Terceiro gráfico (posição 3 de 4)
         sns.lineplot(
             data=df_acel,
             x="Tempo",
@@ -82,7 +94,14 @@ def plotar_graficos(
             style="Tipo",
             markers=True,
         )  # Plota acelerações
-        plt.title("Aceleração em função do tempo")  # Título do gráfico
+        plt.title("Aceleração em função do tempo (m/s²)")  # Título do gráfico
 
-    plt.tight_layout()  # Ajusta o layout para evitar sobreposição
-    plt.savefig("static/grafico.png")
+    # Gráfico de altitude estimada
+    plt.subplot(1, 4, 4)  # Quarto gráfico (posição 4 de 4)
+    plt.plot(tempos, altitudes, marker="o")  # Plota altitude vs tempo com marcadores
+    plt.title("Altitude estimada em função do tempo (m)")  # Título do gráfico
+    plt.xlabel("Tempo (s)")  # Rótulo do eixo x
+    plt.ylabel("Altitude (m)")  # Rótulo do eixo y
+
+    plt.tight_layout()
+    plt.savefig(save_path)
