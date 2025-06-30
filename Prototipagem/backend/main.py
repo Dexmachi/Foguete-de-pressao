@@ -5,39 +5,24 @@ from movimento import calcular_movimento, haversine
 from graficos import plotar_graficos
 import sys
 import os
+import math
 
 
-def gerar_mapa_trajetoria(registros, save_path):
-    import folium
-
-    # Extrai coordenadas
-    coords = [(r["latitude"], r["longitude"]) for r in registros]
-    if not coords:
-        return
-
-    # Centraliza o mapa no primeiro ponto
-    m = folium.Map(location=coords[0], zoom_start=17)
-    folium.PolyLine(coords, color="blue", weight=5, opacity=0.8).add_to(m)
-    folium.Marker(coords[0], tooltip="Início", icon=folium.Icon(color="green")).add_to(
-        m
-    )
-    folium.Marker(coords[-1], tooltip="Fim", icon=folium.Icon(color="red")).add_to(m)
-    m.save(save_path)
+pasta_de_saida="json"
+os.makedirs(pasta_de_saida, exist_ok=True)
+arquivos_existentes = os.listdir(pasta_de_saida)
+id_teste = len(arquivos_existentes) + 1
 
 
 def process_data():
-    global VELOCIDADE_MEDIA
     print("Processando dados...")
 
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    dados_recebidos = os.path.join(base_dir, "data", "dadosRecebidos.json")
-    static_dir = os.path.join(base_dir, "static")
-    if not os.path.exists(static_dir):
-        os.makedirs(static_dir)
 
-    # Lê sempre do /data/dadosRecebidos.json na raiz do projeto
-    with open(dados_recebidos, "r", encoding="utf-8") as f:
-        registros = [json.loads(linha) for linha in f if linha.strip()]
+    # Lê JSON Lines
+    with open("dadosRecebidos.json", "r") as f:
+        registros = json.load(f)
+    
+    
 
     # Ordena por data+hora
     registros.sort(
@@ -75,26 +60,40 @@ def process_data():
 
     # Calcula grandezas físicas
     resultados = calcular_movimento(tempos, distancias)
+    with open("resultados.json", "r") as f:
+        dados_para_distancia = json.load(f)
+    
+    distancia = int(dados_para_distancia.get("distancia", 0.0))
+    
+    with open("resultados.json", "w") as f:
+        json.dump(
+            {
+                "velocidade_media": resultados["velocidade_media"],
+                "aceleracao_media": resultados["aceleracao_media"],
+                "distancia": distancia,
+                "distancia_total": resultados["distancia_total"],
+                "altura_maxima": resultados["altura_maxima"],
+            }, f)
+    
+    
+    data_teste = registros[0]["data"]
+    data_formatada = datetime.strptime(data_teste, "%d/%m/%Y").strftime("%Y-%m-%d")
+    nome_arquivo = f"{pasta_de_saida}/teste{id_teste}_{distancia}_Metros_{data_formatada}.json"
+    with open(nome_arquivo, "w") as f:
+        json.dump(registros, f, indent=4)
+        
+    
 
     # Exibe resultados
     print("\nResultados:")
     print(f"Velocidade média: {resultados['velocidade_media']:.2f} m/s")
     print(f"Aceleração média: {resultados['aceleracao_media']:.2f} m/s²")
-
-    # Salva a velocidade média em um arquivo para o frontend
-    with open(os.path.join(static_dir, "velocidade_media.txt"), "w") as f:
-        f.write(str(resultados["velocidade_media"]))
+    print(f"Distância total: {resultados['distancia_total']:.2f} metros")
+    print(f"Arquivo salvo: {nome_arquivo}")
+    print(f"Altura maáxima: {resultados['altura_maxima']:.2f} metros")
 
     # Plota gráficos
-    plotar_graficos(
-        tempos,
-        distancias,
-        resultados,
-        save_path=os.path.join(static_dir, "grafico.png"),
-    )
-
-    # Gera o mapa da trajetória
-    gerar_mapa_trajetoria(registros, os.path.join(static_dir, "trajetoria.html"))
+    plotar_graficos(tempos, distancias, resultados)
 
     # Abre o frontend novamente para mostrar os resultados
     # webbrowser.open('Frontend.html')
