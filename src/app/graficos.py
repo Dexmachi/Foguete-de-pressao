@@ -61,9 +61,9 @@ def plotar_graficos(tempos, espacos, resultados, save_dir="static"):
     fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
     sns.lineplot(data=df_espaco, x="Tempo", y="Espaço", marker="o", ax=axs[0])
-    axs[0].set_title("Espaço percorrido em função do tempo (m)")
+    axs[0].set_title("Distância percorrida em função do tempo (m)")
     axs[0].set_xlabel("Tempo (s)")
-    axs[0].set_ylabel("Espaço (m)")
+    axs[0].set_ylabel("Distância (m)")
 
     sns.lineplot(
         data=df_vel,
