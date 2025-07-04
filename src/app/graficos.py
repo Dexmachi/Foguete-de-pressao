@@ -4,88 +4,89 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plotar_graficos(
-    tempos, espacos, resultados, save_path="static/grafico.png"
-):  # Função para plotar gráficos com base nos dados de tempo, espaço e resultados
-    df_espaco = pd.DataFrame(
-        {"Tempo": tempos, "Espaço": espacos}
-    )  # Cria DataFrame com os dados de espaço ao longo do tempo
+def plotar_graficos(tempos, espacos, resultados, save_dir="static"):
+    df_espaco = pd.DataFrame({"Tempo": tempos, "Espaço": espacos})
 
     df_velocidade = pd.DataFrame(
-        {  # Cria DataFrame com velocidades instantâneas
-            "Tempo": tempos[
-                1:
-            ],  # Ignora o primeiro tempo (velocidade é calculada entre dois pontos)
-            "Velocidade": resultados["velocidades"],  # Lista de velocidades calculadas
-            "Tipo": "Velocidade instantânea",  # Rótulo para o gráfico
+        {
+            "Tempo": tempos[1:],
+            "Velocidade": resultados["velocidades"],
+            "Tipo": "Velocidade instantânea",
         }
     )
 
     df_vel_media = pd.DataFrame(
-        {  # Cria DataFrame com a linha de velocidade média
-            "Tempo": [tempos[0], tempos[-1]],  # Apenas dois tempos: início e fim
-            "Velocidade": [resultados["velocidade_media"]]
-            * 2,  # Mesmo valor para criar linha reta
-            "Tipo": "Velocidade média",  # Rótulo para o gráfico
+        {
+            "Tempo": [tempos[0], tempos[-1]],
+            "Velocidade": [resultados["velocidade_media"]] * 2,
+            "Tipo": "Velocidade média",
         }
     )
 
-    df_vel = pd.concat(
-        [df_velocidade, df_vel_media]
-    )  # Junta os dois DataFrames de velocidade (instantânea e média)
+    df_vel = pd.concat([df_velocidade, df_vel_media])
+
+    # Verifica se há aceleração
+    tem_acel = len(resultados["aceleracoes"]) > 0
+
+    if tem_acel:
+        df_aceleracao = pd.DataFrame(
+            {
+                "Tempo": tempos[2:],
+                "Aceleração": resultados["aceleracoes"],
+                "Tipo": "Aceleração instantânea",
+            }
+        )
+        df_acel_media = pd.DataFrame(
+            {
+                "Tempo": [tempos[0], tempos[-1]],
+                "Aceleração": [resultados["aceleracao_media"]] * 2,
+                "Tipo": "Aceleração média",
+            }
+        )
+        df_acel = pd.concat([df_aceleracao, df_acel_media])
 
     g = 9.8
     theta = np.radians(45)
-    alcance = espacos[-1]  # distância total percorrida (horizontal)
+    alcance = espacos[-1]
     if alcance > 0:
         v0 = np.sqrt(alcance * g / np.sin(2 * theta))
         v0y = v0 * np.sin(theta)
         tempos_np = np.array(tempos)
         altitudes = v0y * tempos_np - 0.5 * g * tempos_np**2
-        altitudes[altitudes < 0] = 0  # Não deixa altitude negativa
+        altitudes[altitudes < 0] = 0
     else:
         altitudes = np.zeros_like(tempos)
 
-    plt.figure(figsize=(20, 5))  # Ajusta o tamanho para 4 gráficos
+    # --- Gráfico 1 e 2 (Espaço x Tempo + Velocidade x Tempo) ---
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-    plt.subplot(1, 4, 1)  # Primeiro gráfico (posição 1 de 4)
+    sns.lineplot(data=df_espaco, x="Tempo", y="Espaço", marker="o", ax=axs[0])
+    axs[0].set_title("Distância percorrida em função do tempo (m)")
+    axs[0].set_xlabel("Tempo (s)")
+    axs[0].set_ylabel("Distância (m)")
+
     sns.lineplot(
-        data=df_espaco, x="Tempo", y="Espaço", marker="o"
-    )  # Plota espaço vs tempo com marcadores
-    plt.title("Espaço percorrido em função do tempo (m)")  # Título do gráfico
+        data=df_vel,
+        x="Tempo",
+        y="Velocidade",
+        hue="Tipo",
+        style="Tipo",
+        markers=True,
+        ax=axs[1],
+    )
+    axs[1].set_title("Velocidade em função do tempo (m/s)")
+    axs[1].set_xlabel("Tempo (s)")
+    axs[1].set_ylabel("Velocidade (m/s)")
 
-    plt.subplot(1, 4, 2)  # Segundo gráfico (posição 2 de 4)
-    sns.lineplot(
-        data=df_vel, x="Tempo", y="Velocidade", hue="Tipo", style="Tipo", markers=True
-    )  # Plota velocidades
-    plt.title("Velocidade em função do tempo (m/s)")  # Título do gráfico
+    plt.tight_layout()
+    plt.savefig(f"{save_dir}/grafico_1_2.png")
+    plt.close()
 
-    if len(resultados["aceleracoes"]) > 0:  # Se houver dados de aceleração disponíveis
-        df_aceleracao = pd.DataFrame(
-            {  # Cria DataFrame com acelerações instantâneas
-                "Tempo": tempos[
-                    2:
-                ],  # Começa do terceiro tempo (aceleração é derivada da velocidade, que é derivada do espaço)
-                "Aceleração": resultados[
-                    "aceleracoes"
-                ],  # Lista de acelerações calculadas
-                "Tipo": "Aceleração instantânea",  # Rótulo para o gráfico
-            }
-        )
+    # --- Gráfico 3 e 4 (Aceleração x Tempo e Trajetória física) ---
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-        df_acel_media = pd.DataFrame(
-            {  # Cria DataFrame com aceleração média
-                "Tempo": [tempos[0], tempos[-1]],  # Do início ao fim
-                "Aceleração": [resultados["aceleracao_media"]] * 2,  # Valor constante
-                "Tipo": "Aceleração média",  # Rótulo para o gráfico
-            }
-        )
-
-        df_acel = pd.concat(
-            [df_aceleracao, df_acel_media]
-        )  # Junta os dois DataFrames de aceleração
-
-        plt.subplot(1, 4, 3)  # Terceiro gráfico (posição 3 de 4)
+    # Gráfico 3: aceleração ou espaço em branco se não houver
+    if tem_acel:
         sns.lineplot(
             data=df_acel,
             x="Tempo",
@@ -93,15 +94,23 @@ def plotar_graficos(
             hue="Tipo",
             style="Tipo",
             markers=True,
-        )  # Plota acelerações
-        plt.title("Aceleração em função do tempo (m/s²)")  # Título do gráfico
+            ax=axs[0],
+        )
+        axs[0].set_title("Aceleração em função do tempo (m/s²)")
+        axs[0].set_xlabel("Tempo (s)")
+        axs[0].set_ylabel("Aceleração (m/s²)")
+    else:
+        axs[0].text(
+            0.5, 0.5, "Sem dados de aceleração", ha="center", va="center", fontsize=14
+        )
+        axs[0].axis("off")
 
-    # Gráfico de altitude estimada
-    plt.subplot(1, 4, 4)  # Quarto gráfico (posição 4 de 4)
-    plt.plot(tempos, altitudes, marker="o")  # Plota altitude vs tempo com marcadores
-    plt.title("Altitude estimada em função do tempo (m)")  # Título do gráfico
-    plt.xlabel("Tempo (s)")  # Rótulo do eixo x
-    plt.ylabel("Altitude (m)")  # Rótulo do eixo y
+    # Gráfico 4: Trajetória física (Espaço x Altura real)
+    sns.lineplot(x=espacos, y=resultados["alturas"], marker="o", ax=axs[1])
+    axs[1].set_title("Trajetória do Foguete (Espaço x Altura Relativa)")
+    axs[1].set_xlabel("Distância Horizontal (m)")
+    axs[1].set_ylabel("Distância Vertical (m)")
 
     plt.tight_layout()
-    plt.savefig(save_path)
+    plt.savefig(f"{save_dir}/grafico_3_4.png")
+    plt.close()
