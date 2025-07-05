@@ -75,12 +75,10 @@ def process_data():
 
     # Extrai as altitudes mandadas pelo BMP280
     altitudes_abs = [r["altitude"] for r in registros]  # lista de altitudes absolutas
-    altitude_inicial = altitudes_abs[
-        0
-    ]  # usa a altitude do primeiro ponto como referência, ou seja, enquanto o foguete ainda não decolou
-    alturas = [
-        alt - altitude_inicial for alt in altitudes_abs
-    ]  # subtrai a altitude inicial de todas as altitudes
+    altitude_inicial = altitudes_abs[0]
+    alturas = [alt - altitude_inicial for alt in altitudes_abs]
+    # Garante que altura relativa nunca seja negativa
+    alturas = np.maximum(alturas, 0).tolist()
 
     # Calcula grandezas físicas
     resultados = calcular_movimento(tempos, distancias)
@@ -116,5 +114,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--process":
         process_data()
     else:
+        print("Modo padrão: executando análise")
+        process_data()
         print("Modo padrão: executando análise")
         process_data()

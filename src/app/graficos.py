@@ -3,6 +3,29 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 
+try:
+    from scipy.signal import savgol_filter
+
+    TEM_SAVGOL = True
+except ImportError:
+    TEM_SAVGOL = False
+
+
+def media_movel(arr, window=5):
+    """Retorna a média móvel de um array 1D."""
+    arr = np.asarray(arr)
+    if window < 2:
+        return arr
+    return np.convolve(arr, np.ones(window) / window, mode="same")
+
+
+def suavizar_altitude(arr):
+    arr = np.asarray(arr)
+    if TEM_SAVGOL and len(arr) >= 5:
+        return savgol_filter(arr, window_length=5, polyorder=2)
+    else:
+        return media_movel(arr, window=3)
+
 
 def plotar_graficos(tempos, espacos, resultados, save_dir="static"):
     df_espaco = pd.DataFrame({"Tempo": tempos, "Espaço": espacos})
@@ -106,10 +129,22 @@ def plotar_graficos(tempos, espacos, resultados, save_dir="static"):
         axs[0].axis("off")
 
     # Gráfico 4: Trajetória física (Espaço x Altura real)
-    sns.lineplot(x=espacos, y=resultados["alturas"], marker="o", ax=axs[1])
+    alturas_orig = np.array(resultados["alturas"])
+    alturas_suav = suavizar_altitude(alturas_orig)
+
+    # Plota a curva suavizada e a original (opcional)
+    axs[1].plot(espacos, alturas_orig, "o-", alpha=0.3, label="Altura original")
+    axs[1].plot(
+        espacos,
+        alturas_suav,
+        "-",
+        color="orange",
+        label=("Altura suavizada " if TEM_SAVGOL else "Altura suavizada (média móvel)"),
+    )
     axs[1].set_title("Trajetória do Foguete (Espaço x Altura Relativa)")
     axs[1].set_xlabel("Distância Horizontal (m)")
     axs[1].set_ylabel("Distância Vertical (m)")
+    axs[1].legend()
 
     plt.tight_layout()
     plt.savefig(f"{save_dir}/grafico_3_4.png")
