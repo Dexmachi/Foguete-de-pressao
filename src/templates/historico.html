@@ -1,235 +1,246 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Histórico de Testes</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              dark: {
-                100: "#E5E7EB",
-                200: "#D1D5DB",
-                300: "#9CA3AF",
-                400: "#6B7280",
-                500: "#4B5563",
-                600: "#374151",
-                700: "#1F2937",
-                800: "#111827",
-                900: "#0F172A",
-              },
-            },
-          },
-        },
-      };
-    </script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      body {
-        background-color: #111827; /* Mesmo fundo escuro do Frontend.html */
-        color: white;
-      }
-      .btn-glow {
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-      }
-      .btn-glow:hover {
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
-      }
-      .panel {
-        background-color: #1f2937; /* Mesma cor dos painéis do Frontend.html */
-        border-radius: 0.5rem;
-        border: 1px solid #374151;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      }
-      .panel-header {
-        border-bottom: 1px solid #374151;
-        padding: 1rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        color: white;
-      }
-      .panel-content {
-        padding: 1.5rem;
-        background-color: #1f2937; /* Mesma cor do conteúdo dos painéis */
-      }
-      .table-container {
-        overflow-x: auto;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 0.75rem 1rem;
-        text-align: left;
-        border-bottom: 1px solid #374151;
-        color: white;
-      }
-      th {
-        background-color: #374151;
-        color: white;
-        font-weight: 600;
-      }
-      tr:hover {
-        background-color: #374151;
-      }
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 1rem;
-      }
-      .pagination button {
-        margin: 0 0.25rem;
-        padding: 0.5rem 0.75rem;
-        border-radius: 0.25rem;
-        background-color: #374151;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
-      .pagination button.active {
-        background-color: #3b82f6;
-        color: white;
-      }
-      .pagination button:hover:not(.active) {
-        background-color: #4b5563;
-      }
-      .modal-content {
-        background-color: #1f2937; /* Mesma cor dos painéis */
-        border: 1px solid #374151;
-      }
-    </style>
-  </head>
-  <body class="dark">
-    <!-- Navbar -->
-    <nav class="bg-gray-800 shadow-lg">
-      <!-- Mesma cor da navbar do Frontend.html -->
-      <div class="max-w-6xl mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <i class="fas fa-ruler-combined text-blue-400 text-2xl mr-2"></i>
-            <span class="text-xl font-semibold text-white">DashB</span>
-          </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Histórico de Testes</title>
+        <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
+        <script src="static/js/tailwind.js"></script>
+        >
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            dark: {
+                                100: "#E5E7EB",
+                                200: "#D1D5DB",
+                                300: "#9CA3AF",
+                                400: "#6B7280",
+                                500: "#4B5563",
+                                600: "#374151",
+                                700: "#1F2937",
+                                800: "#111827",
+                                900: "#0F172A",
+                            },
+                        },
+                    },
+                },
+            };
+        </script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+        <style>
+            body {
+                background-color: #111827; /* Mesmo fundo escuro do Frontend.html */
+                color: white;
+            }
+            .btn-glow {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+            }
+            .btn-glow:hover {
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+            }
+            .panel {
+                background-color: #1f2937; /* Mesma cor dos painéis do Frontend.html */
+                border-radius: 0.5rem;
+                border: 1px solid #374151;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .panel-header {
+                border-bottom: 1px solid #374151;
+                padding: 1rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                color: white;
+            }
+            .panel-content {
+                padding: 1.5rem;
+                background-color: #1f2937; /* Mesma cor do conteúdo dos painéis */
+            }
+            .table-container {
+                overflow-x: auto;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th,
+            td {
+                padding: 0.75rem 1rem;
+                text-align: left;
+                border-bottom: 1px solid #374151;
+                color: white;
+            }
+            th {
+                background-color: #374151;
+                color: white;
+                font-weight: 600;
+            }
+            tr:hover {
+                background-color: #374151;
+            }
+            .pagination {
+                display: flex;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+            .pagination button {
+                margin: 0 0.25rem;
+                padding: 0.5rem 0.75rem;
+                border-radius: 0.25rem;
+                background-color: #374151;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+            .pagination button.active {
+                background-color: #3b82f6;
+                color: white;
+            }
+            .pagination button:hover:not(.active) {
+                background-color: #4b5563;
+            }
+            .modal-content {
+                background-color: #1f2937; /* Mesma cor dos painéis */
+                border: 1px solid #374151;
+            }
+        </style>
+    </head>
+    <body class="dark">
+        <!-- Navbar -->
+        <nav class="bg-gray-800 shadow-lg">
+            <!-- Mesma cor da navbar do Frontend.html -->
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <i
+                            class="fas fa-ruler-combined text-blue-400 text-2xl mr-2"
+                        ></i>
+                        <span class="text-xl font-semibold text-white"
+                            >DashB</span
+                        >
+                    </div>
 
-          <!-- Back Button -->
-          <div class="flex items-center space-x-4">
-            <button
-              class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
-              onclick="window.location.href='/'"
-            >
-              <i class="fas fa-arrow-left mr-2"></i>
-              Voltar
-            </button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-6">
-      <div class="grid grid-cols-1 gap-6">
-        <!-- History Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <i class="fas fa-history text-blue-400 mr-2"></i>
-            <span>Histórico de Testes</span>
-          </div>
-          <div class="panel-content">
-            <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Data/Hora</th>
-                    <th>Distância (m)</th>
-                    <th>Velocidade (m/s)</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody id="tabela-historico"></tbody>
-              </table>
+                    <!-- Back Button -->
+                    <div class="flex items-center space-x-4">
+                        <button
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
+                            onclick="window.location.href='/'"
+                        >
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Voltar
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </main>
+        </nav>
 
-    <!-- Modal -->
-    <div
-      id="details-modal"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
-    >
-      <div class="modal-content rounded-lg p-6 w-full max-w-2xl">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold text-white">
-            Detalhes do Teste #<span id="test-id"></span>
-          </h3>
-          <button onclick="closeModal()" class="text-gray-300 hover:text-white">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <p class="text-sm text-gray-300">Data/Hora:</p>
-            <p id="test-date" class="text-white"></p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-300">Distância:</p>
-            <p id="test-distance" class="text-white"></p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-300">Velocidade:</p>
-            <p id="test-velocity" class="text-white"></p>
-          </div>
-          <div>
-            <p class="text-sm text-gray-300">Duração:</p>
-            <p id="test-duration" class="text-white"></p>
-          </div>
-        </div>
-        <div class="mb-4">
-          <p class="text-sm text-gray-300 mb-2">Gráfico:</p>
-          <div class="bg-gray-800 rounded p-4 flex items-center justify-center">
-            <img
-              id="test-graph"
-              src=""
-              alt="Gráfico do teste"
-              class="max-w-full"
-            />
-          </div>
-        </div>
-        <div class="flex justify-end">
-          <button
-            onclick="closeModal()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-300 btn-glow"
-          >
-            Fechar
-          </button>
-        </div>
-      </div>
-    </div>
+        <!-- Main Content -->
+        <main class="max-w-6xl mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- History Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-history text-blue-400 mr-2"></i>
+                        <span>Histórico de Testes</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Data/Hora</th>
+                                        <th>Distância (m)</th>
+                                        <th>Velocidade (m/s)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-historico"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
 
-    <script>
-      async function carregarHistorico() {
-        try {
-          const response = await fetch("/api/historico");
-          const testes = await response.json();
+        <!-- Modal -->
+        <div
+            id="details-modal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50"
+        >
+            <div class="modal-content rounded-lg p-6 w-full max-w-2xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-white">
+                        Detalhes do Teste #<span id="test-id"></span>
+                    </h3>
+                    <button
+                        onclick="closeModal()"
+                        class="text-gray-300 hover:text-white"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-300">Data/Hora:</p>
+                        <p id="test-date" class="text-white"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-300">Distância:</p>
+                        <p id="test-distance" class="text-white"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-300">Velocidade:</p>
+                        <p id="test-velocity" class="text-white"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-300">Duração:</p>
+                        <p id="test-duration" class="text-white"></p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-300 mb-2">Gráfico:</p>
+                    <div
+                        class="bg-gray-800 rounded p-4 flex items-center justify-center"
+                    >
+                        <img
+                            id="test-graph"
+                            src=""
+                            alt="Gráfico do teste"
+                            class="max-w-full"
+                        />
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button
+                        onclick="closeModal()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-300 btn-glow"
+                    >
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
 
-          const tbody = document.getElementById("tabela-historico");
-          tbody.innerHTML = "";
+        <script>
+            async function carregarHistorico() {
+                try {
+                    const response = await fetch("/api/historico");
+                    const testes = await response.json();
 
-          testes.forEach((teste) => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
+                    const tbody = document.getElementById("tabela-historico");
+                    tbody.innerHTML = "";
+
+                    testes.forEach((teste) => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
           <td>${teste.id}</td>
           <td>${teste.data_hora}</td>
           <td>${teste.distancia}</td>
@@ -243,33 +254,33 @@
             </button>
           </td>
         `;
-            tbody.appendChild(tr);
-          });
-        } catch (err) {
-          console.error("Erro ao carregar histórico:", err);
-        }
-      }
+                        tbody.appendChild(tr);
+                    });
+                } catch (err) {
+                    console.error("Erro ao carregar histórico:", err);
+                }
+            }
 
-      async function settarTeste(nomeArquivo) {
-        try {
-          const response = await fetch("/settarTeste", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ arquivo: nomeArquivo }),
-          });
+            async function settarTeste(nomeArquivo) {
+                try {
+                    const response = await fetch("/settarTeste", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ arquivo: nomeArquivo }),
+                    });
 
-          const result = await response.json();
-          if (!response.ok) throw new Error(result.message);
-          alert("Dados carregados com sucesso!");
-        } catch (err) {
-          console.error("Erro ao settar teste:", err);
-          alert("Erro ao carregar teste.");
-        }
-      }
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message);
+                    alert("Dados carregados com sucesso!");
+                } catch (err) {
+                    console.error("Erro ao settar teste:", err);
+                    alert("Erro ao carregar teste.");
+                }
+            }
 
-      document.addEventListener("DOMContentLoaded", carregarHistorico);
-    </script>
-  </body>
+            document.addEventListener("DOMContentLoaded", carregarHistorico);
+        </script>
+    </body>
 </html>
