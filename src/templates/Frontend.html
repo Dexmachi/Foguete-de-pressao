@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gráficos de Lançamento</title>
     <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="static/js/tailwind.js"></script>
+
     <script>
       tailwind.config = {
         darkMode: "class",
@@ -28,10 +29,8 @@
         },
       };
     </script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link rel="stylesheet" href="static/css/all.min.css" />
+
     <style>
       .btn-glow {
         box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
@@ -323,33 +322,44 @@
           return;
         }
 
-        document.getElementById("start-btn").classList.add("hidden");
-        document.getElementById("stop-btn").classList.remove("hidden");
-        document.getElementById("status-info").textContent =
-          "Coletando dados GPS...";
-
-        try {
-          // Start the server via fetch API
-          const response = await fetch("http://localhost:5000/start-server", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ distancia: selectedDistance }), // <-- padronize o nome do campo
-          });
-
-          if (response.ok) {
+        async function postMessage() {
+          if (!selectedDistance) {
             showToast(
-              "Servidor",
-              "Servidor iniciado e pronto para receber coordenadas...",
-              "success"
+              "Erro",
+              "Por favor, selecione uma distância para o lançamento!",
+              "erro"
             );
-          } else {
-            throw new Error("Failed to start server");
+            return;
           }
-        } catch (error) {
-          showToast("Erro", "Falha ao iniciar o servidor", "error");
-          console.error(error);
+
+          document.getElementById("start-btn").classList.add("hidden");
+          document.getElementById("stop-btn").classList.remove("hidden");
+          document.getElementById("status-info").textContent =
+            "Coletando dados GPS...";
+
+          try {
+            // Start the server via fetch API
+            const response = await fetch("/start-server", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ distancia: selectedDistance }), // <-- padronize o nome do campo
+            });
+
+            if (response.ok) {
+              showToast(
+                "Servidor",
+                "Servidor iniciado e pronto para receber coordenadas...",
+                "success"
+              );
+            } else {
+              throw new Error("Failed to start server");
+            }
+          } catch (error) {
+            showToast("Erro", "Falha ao iniciar o servidor", "error");
+            console.error(error);
+          }
         }
       }
 
