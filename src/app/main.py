@@ -1,8 +1,8 @@
 import json
 import numpy as np
 from datetime import datetime
-from .movimento import calcular_movimento, haversine
-from .graficos import plotar_graficos
+from movimento import calcular_movimento, haversine
+from graficos import plotar_graficos
 import sys
 import os
 
