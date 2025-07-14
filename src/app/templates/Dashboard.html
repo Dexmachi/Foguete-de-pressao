@@ -1,0 +1,49 @@
+<!-- filepath: src/app/templates/launch_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Lançamento #{{ launch_id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #111827; color: white; }
+        .panel { background-color: #1F2937; border-radius: 0.5rem; border: 1px solid #374151; }
+        .panel-header { border-bottom: 1px solid #374151; padding: 1rem; font-weight: 600; }
+        .panel-content { padding: 1.5rem; }
+    </style>
+</head>
+<body>
+    <nav class="bg-gray-800 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <h1 class="text-xl font-semibold text-white">Detalhes do Lançamento #{{ launch_id }}</h1>
+                <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Voltar ao Painel</a>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <div class="panel mb-6">
+            <div class="panel-header">Informações</div>
+            <div class="panel-content">
+                <p>Velocidade Média: <strong>{{ velocity | round(2) }} m/s</strong></p>
+            </div>
+        </div>
+        <div class="panel">
+            <div class="panel-header">Gráficos</div>
+            <div class="panel-content">
+                <img src="/api/launch/{{ launch_id }}/graph/grafico_1_2.png?t={{ now }}" alt="Gráfico1 gerado">
+                <img src="/api/launch/{{ launch_id }}/graph/grafico_3_4.png?t={{ now }}" alt="Gráfico2 gerado">
+                <!-- <img src="/api/launch/{{ launch_id }}/graph/grafico_1_2?t={{ now }}" alt="Gráfico 1" class="w-full mb-4">
+                <img src="/api/launch/{{ launch_id }}/graph/grafico_3_4?t={{ now }}" alt="Gráfico 2" class="w-full mb-4"> -->
+            </div>
+        </div>
+         <div class="panel mt-6">
+            <div class="panel-header">Trajetória</div>
+            <div class="panel-content">
+                <iframe src="/static/trajetoria.html?t={{ now }}" width="100%" height="400" style="border:0;"></iframe>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -12,7 +12,7 @@ latitude = -23.55052
 longitude = -46.633308
 data_base = datetime.now()
 
-for i in range(50):  # Envia 10 pontos de teste
+for i in range(15):  # Envia 10 pontos de teste
     data = (data_base + timedelta(minutes=i)).strftime("%d/%m/%Y")
     hora = (data_base + timedelta(minutes=i)).strftime("%H:%M:%S")
     latitude += random.uniform(0.00005, 0.00015)
