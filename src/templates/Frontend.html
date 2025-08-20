@@ -1,378 +1,580 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráficos de Lançamento</title>
-    <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
-    <script src="static/js/tailwind.js"></script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Gráficos de Lançamento</title>
+        <link rel="icon" href="static/favicon.ico" type="image/x-icon" />
+        <script src="static/js/tailwind.js"></script>
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            100: '#E5E7EB',
-                            200: '#D1D5DB',
-                            300: '#9CA3AF',
-                            400: '#6B7280',
-                            500: '#4B5563',
-                            600: '#374151',
-                            700: '#1F2937',
-                            800: '#111827',
-                            900: '#0F172A',
-                        }
-                    }
-                }
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            dark: {
+                                100: "#E5E7EB",
+                                200: "#D1D5DB",
+                                300: "#9CA3AF",
+                                400: "#6B7280",
+                                500: "#4B5563",
+                                600: "#374151",
+                                700: "#1F2937",
+                                800: "#111827",
+                                900: "#0F172A",
+                            },
+                        },
+                    },
+                },
+            };
+        </script>
+        <link rel="stylesheet" href="static/css/all.min.css" />
+
+        <style>
+            .btn-glow {
+                box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
             }
-        }
-    </script>
-    <link rel="stylesheet" href="static/css/all.min.css">
+            .btn-glow:hover {
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
+            }
+            .btn-danger-glow {
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            }
+            .btn-danger-glow:hover {
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+            }
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+            }
+            .toast.show {
+                opacity: 1;
+            }
+            body {
+                background-color: #111827;
+                color: #e5e7eb;
+            }
+            .panel {
+                background-color: #1f2937;
+                border-radius: 0.5rem;
+                border: 1px solid #374151;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .panel-header {
+                border-bottom: 1px solid #374151;
+                padding: 1rem;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+            }
+            .panel-content {
+                padding: 1.5rem;
+                min-height: 200px;
+            }
+            .dropdown-menu {
+                display: none;
+                position: absolute;
+                margin-top: 0.5rem;
+                width: 12rem;
+                background-color: #374151;
+                border-radius: 0.375rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                z-index: 10;
+                border: 1px solid #4b5563;
+            }
+            .dropdown-menu.show {
+                display: block;
+            }
+        </style>
+    </head>
+    <body class="dark">
+        <!-- Navbar -->
+        <nav class="bg-dark-800 shadow-lg">
+            <div class="max-w-6xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <i
+                            class="fas fa-rocket text-blue-400 text-2xl mr-2"
+                        ></i>
+                        <span class="text-xl font-semibold text-dark-100"
+                            >DashB</span
+                        >
+                    </div>
 
-    <style>
-        .btn-glow {
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-        .btn-glow:hover {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
-        }
-        .btn-danger-glow {
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-        }
-        .btn-danger-glow:hover {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
-        }
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .toast.show {
-            opacity: 1;
-        }
-        body {
-            background-color: #111827;
-            color: #E5E7EB;
-        }
-        .panel {
-            background-color: #1F2937;
-            border-radius: 0.5rem;
-            border: 1px solid #374151;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .panel-header {
-            border-bottom: 1px solid #374151;
-            padding: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-        }
-        .panel-content {
-            padding: 1.5rem;
-            min-height: 200px;
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            margin-top: 0.5rem;
-            width: 12rem;
-            background-color: #374151;
-            border-radius: 0.375rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            border: 1px solid #4B5563;
-        }
-        .dropdown-menu.show {
-            display: block;
-        }
-    </style>
-</head>
-<body class="dark">
-    <!-- Navbar -->
-    <nav class="bg-dark-800 shadow-lg">
-        <div class="max-w-6xl mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center">
-                    <i class="fas fa-rocket text-blue-400 text-2xl mr-2"></i>
-                    <span class="text-xl font-semibold text-dark-100">Painel de Análise de Lançamento</span>
-                </div>
-                
-                <!-- Control Buttons -->
-                <div class="flex items-center space-x-4">
-                    <!-- Distance Dropdown -->
-                    <div class="relative">
-                        <button id="dropdown-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow">
-                            <i class="fas fa-arrows-alt-v mr-2"></i>
-                            <span id="selected-distance">Selecione distância de lançamento</span>
-                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                    <!-- Control Buttons -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Distance Dropdown -->
+                        <div class="relative">
+                            <button
+                                id="dropdown-button"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
+                            >
+                                <i class="fas fa-arrows-alt-v mr-2"></i>
+                                <span id="selected-distance"
+                                    >Selecione uma distância</span
+                                >
+                                <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div id="dropdown-menu" class="dropdown-menu">
+                                <div class="py-1">
+                                    <a
+                                        href="#"
+                                        class="block px-4 py-2 text-dark-100 hover:bg-dark-600"
+                                        onclick="selectDistance(10)"
+                                        >10 metros</a
+                                    >
+                                    <a
+                                        href="#"
+                                        class="block px-4 py-2 text-dark-100 hover:bg-dark-600"
+                                        onclick="selectDistance(20)"
+                                        >20 metros</a
+                                    >
+                                    <a
+                                        href="#"
+                                        class="block px-4 py-2 text-dark-100 hover:bg-dark-600"
+                                        onclick="selectDistance(30)"
+                                        >30 metros</a
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Start Button -->
+                        <button
+                            id="start-btn"
+                            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
+                            onclick="postMessage()"
+                        >
+                            <i class="fas fa-broadcast-tower mr-2"></i>
+                            Coletar coordenadas
                         </button>
-                        <div id="dropdown-menu" class="dropdown-menu">
-                            <div class="py-1">
-                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(10)">10 metros</a>
-                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(20)">20 metros</a>
-                                <a href="#" class="block px-4 py-2 text-dark-100 hover:bg-dark-600" onclick="selectDistance(30)">30 metros</a>
+
+                        <!-- Stop Button (Initially Hidden) -->
+                        <button
+                            id="stop-btn"
+                            class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden"
+                            onclick="stopMeasurement()"
+                        >
+                            <i class="fas fa-chart-line mr-2 text-white"></i>
+                            Parar Coleta
+                        </button>
+
+                        <button
+                            id="grafar"
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
+                            onclick="processDataH()"
+                        >
+                            <i class="fas fa-history mr-2"></i>
+                            Gerar Gráficos de histórico
+                        </button>
+
+                        <button
+                            id="histórico"
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow"
+                            onclick="window.location.href='/historico'"
+                        >
+                            <i class="fas fa-history mr-2"></i>
+                            Histórico
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-6xl mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
+                <!-- Graphs Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-chart-line text-blue-400 mr-2"></i>
+                        <span>Gráficos</span>
+                    </div>
+                    <div class="panel-content" id="panel-grafico">
+                        <div class="flex items-center justify-center h-full">
+                            <div class="text-center text-dark-400">
+                                <i
+                                    class="fas fa-chart-bar text-4xl mb-2 text-dark-500"
+                                ></i>
+                                <p>
+                                    Gráficos disponíveis após a conclusão do
+                                    lançamento.
+                                </p>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Start Button -->
-                    <button id="start-btn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="postMessage()">
-                        <i class="fas fa-broadcast-tower mr-2"></i>
-                        Coletar coordenadas
-                    </button>
-                    
-                    <!-- Stop Button (Initially Hidden) -->
-                    <button id="stop-btn" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-danger-glow hidden" onclick="stopMeasurement()">
-                        <i class="fas fa-chart-line mr-2 text-white"></i>
-                        Plotar gráficos
-                    </button>
-
-                    <button id="histórico" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center transition duration-300 btn-glow" onclick="window.location.href='/historico'">
-                        <i class="fas fa-history mr-2"></i>
-                        Histórico
-                    </button>
                 </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-            <!-- Graphs Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-chart-line text-blue-400 mr-2"></i>
-                    <span>Gráficos</span>
+                <!-- Trajetória Panel -->
+                <div class="panel" id="panel-mapa" style="display: none">
+                    <div class="panel-header">
+                        <i class="fas fa-route text-blue-400 mr-2"></i>
+                        <span>Trajetória do Foguete</span>
+                    </div>
+                    <div class="panel-content">
+                        <iframe
+                            id="iframe-mapa"
+                            src=""
+                            width="100%"
+                            height="400"
+                            style="border: 0"
+                            allowfullscreen
+                            loading="lazy"
+                        ></iframe>
+                    </div>
                 </div>
-                <div class="panel-content" id="panel-grafico">
-                    <div class="flex items-center justify-center h-full">
-                        <div class="text-center text-dark-400">
-                            <i class="fas fa-chart-bar text-4xl mb-2 text-dark-500"></i>
-                            <p>Gráficos disponíveis após a conclusão do lançamento.</p>
+
+                <!-- Infos Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        <span>Informações</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-medium text-dark-300">
+                                    Status atual
+                                </h3>
+                                <p id="status-info" class="text-dark-100 mt-1">
+                                    Pronto, aguardando ação...
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-dark-300">
+                                    Distância selecionada
+                                </h3>
+                                <p
+                                    id="distance-info"
+                                    class="text-dark-100 mt-1"
+                                >
+                                    0 metros
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-dark-300">
+                                    Velocidade média
+                                </h3>
+                                <p
+                                    id="velocity-info"
+                                    class="text-dark-100 mt-1"
+                                >
+                                    0 m/s
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Trajetória Panel -->
-            <div class="panel" id="panel-mapa" style="display:none;">
-                <div class="panel-header">
-                    <i class="fas fa-route text-blue-400 mr-2"></i>
-                    <span>Trajetória do Foguete</span>
+        </main>
+
+        <!-- Toast Notification -->
+        <div
+            id="toast"
+            class="toast bg-dark-800 shadow-lg rounded-lg p-4 max-w-xs border border-dark-700"
+        >
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i
+                        id="toast-icon"
+                        class="fas fa-info-circle text-blue-400 text-xl"
+                    ></i>
                 </div>
-                <div class="panel-content">
-                    <iframe id="iframe-mapa" src="" width="100%" height="400" style="border:0;" allowfullscreen loading="lazy"></iframe>
-                </div>
-            </div>
-            
-            <!-- Infos Panel -->
-            <div class="panel">
-                <div class="panel-header">
-                    <i class="fas fa-info-circle text-blue-400 mr-2"></i>
-                    <span>Informações</span>
-                </div>
-                <div class="panel-content">
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-sm font-medium text-dark-300">Status atual</h3>
-                            <p id="status-info" class="text-dark-100 mt-1">Pronto, aguardando ação...</p>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-medium text-dark-300">Distância selecionada</h3>
-                            <p id="distance-info" class="text-dark-100 mt-1">0 metros</p>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-medium text-dark-300">Velocidade média</h3>
-                            <p id="velocity-info" class="text-dark-100 mt-1">0 m/s</p>
-                        </div>
-                    </div>
+                <div class="ml-3">
+                    <h3
+                        id="toast-title"
+                        class="text-sm font-medium text-dark-100"
+                    >
+                        Notification
+                    </h3>
+                    <p id="toast-message" class="mt-1 text-sm text-dark-300">
+                        Message content
+                    </p>
                 </div>
             </div>
         </div>
-    </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast bg-dark-800 shadow-lg rounded-lg p-4 max-w-xs border border-dark-700">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i id="toast-icon" class="fas fa-info-circle text-blue-400 text-xl"></i>
-            </div>
-            <div class="ml-3">
-                <h3 id="toast-title" class="text-sm font-medium text-dark-100">Notification</h3>
-                <p id="toast-message" class="mt-1 text-sm text-dark-300">Message content</p>
-            </div>
-        </div>
-    </div>
+        <script>
+            let selectedDistance = null;
+            let measurementActive = false;
+            let startTime = null;
+            let velocity = 0;
 
-    <script>
-        let selectedDistance = null;
-        let measurementActive = false;
-        let startTime = null;
-        let velocity = 0;
-        
-        // Dropdown functionality
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        
-        // Toggle dropdown on button click
-        dropdownButton.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function() {
-            dropdownMenu.classList.remove('show');
-        });
-        
-        // Prevent dropdown from closing when clicking inside it
-        dropdownMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-        
-        function selectDistance(meters) {
-            selectedDistance = meters;
-            document.getElementById('selected-distance').textContent = meters + ' metros';
-            document.getElementById('distance-info').textContent = meters + ' metros';
-            dropdownMenu.classList.remove('show');
-            showToast('Sucesso', `distancia settada para ${meters} metros`, 'sucesso');
-        }
-        
-        async function postMessage() {
-            if (!selectedDistance) {
-                showToast('Erro', 'Por favor, selecione uma distância para o lançamento!', 'erro');
-                return;
+            // Dropdown functionality
+            const dropdownButton = document.getElementById("dropdown-button");
+            const dropdownMenu = document.getElementById("dropdown-menu");
+
+            // Toggle dropdown on button click
+            dropdownButton.addEventListener("click", function (e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle("show");
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", function () {
+                dropdownMenu.classList.remove("show");
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            dropdownMenu.addEventListener("click", function (e) {
+                e.stopPropagation();
+            });
+
+            function selectDistance(meters) {
+                selectedDistance = meters;
+                document.getElementById("selected-distance").textContent =
+                    meters + " metros";
+                document.getElementById("distance-info").textContent =
+                    meters + " metros";
+                dropdownMenu.classList.remove("show");
+                showToast(
+                    "Sucesso",
+                    `distancia settada para ${meters} metros`,
+                    "sucesso",
+                );
             }
-            
-            document.getElementById('start-btn').classList.add('hidden');
-            document.getElementById('stop-btn').classList.remove('hidden');
-            document.getElementById('status-info').textContent = 'Coletando dados GPS...';
-            
-            try {
-                // Start the server via fetch API
-                const response = await fetch('/start-server', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ distancia: selectedDistance }), // <-- padronize o nome do campo
-                });
-                
-                if (response.ok) {
-                    showToast('Servidor', 'Servidor iniciado e pronto para receber coordenadas...', 'success');
-                } else {
-                    throw new Error('Failed to start server');
-                }
-            } catch (error) {
-                showToast('Erro', 'Falha ao iniciar o servidor', 'error');
-                console.error(error);
-            }
-        }
-        
-        async function stopMeasurement() {
-            try {
-                await fetch('/stop-server', { method: 'POST' });
 
-                const response = await fetch('/process-data', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ distancia: selectedDistance })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Server error: ${response.status} - ${errorText}`);
+            async function postMessage() {
+                if (!selectedDistance) {
+                    showToast(
+                        "Erro",
+                        "Por favor, selecione uma distância para o lançamento!",
+                        "erro",
+                    );
+                    return;
                 }
 
-                const data = await response.json();
+                document.getElementById("start-btn").classList.add("hidden");
+                document.getElementById("stop-btn").classList.remove("hidden");
+                document.getElementById("status-info").textContent =
+                    "Coletando dados GPS...";
 
-                if (data.status === 'success') {
-                    const panelGrafico = document.getElementById('panel-grafico');
-                    panelGrafico.innerHTML = '';
-
-                    // Array com os nomes dos arquivos que seu backend gera
-                    const graficos = ['grafico_1_2.png', 'grafico_3_4.png'];
-
-                    graficos.forEach((nomeArquivo) => {
-                        const img = new Image();
-                        img.src = `/static/${nomeArquivo}?t=${Date.now()}`;
-                        img.alt = `Gráfico ${nomeArquivo}`;
-                        img.className = "w-full mb-4";
-                        img.onerror = () => {
-                            showToast('Error', `Erro ao carregar o gráfico ${nomeArquivo}`, 'error');
-                        };
-                        panelGrafico.appendChild(img);
+                try {
+                    // Start the server via fetch API
+                    const response = await fetch("/start-server", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ distancia: selectedDistance }),
                     });
 
-                    // Atualiza o iframe do mapa normalmente
-                    const panelMapa = document.getElementById('panel-mapa');
-                    const iframeMapa = document.getElementById('iframe-mapa');
-                    iframeMapa.src = "/static/trajetoria.html?t=" + Date.now();
-                    panelMapa.style.display = '';
-
-                    // Atualiza velocidade
-                    document.getElementById('velocity-info').textContent = `${data.velocity.toFixed(2)} m/s`;
-
-                    showToast('Success', 'Gráficos gerados com sucesso!', 'success');
-                } else {
-                    throw new Error(data.message || 'Processing failed');
+                    if (response.ok) {
+                        showToast(
+                            "Servidor",
+                            "Servidor iniciado e pronto para receber coordenadas...",
+                            "success",
+                        );
+                    } else {
+                        throw new Error("Failed to start server");
+                    }
+                } catch (error) {
+                    showToast("Erro", "Falha ao iniciar o servidor", "error");
+                    console.error(error);
                 }
-            } catch (error) {
-                showToast('Error', error.message, 'error');
-                console.error('Processing error:', error);
             }
 
-            // Reset UI
-            document.getElementById('stop-btn').classList.add('hidden');
-            document.getElementById('start-btn').classList.remove('hidden');
-            document.getElementById('status-info').textContent = 'Lançamento registrado';
-        }
+            async function stopMeasurement() {
+                try {
+                    await fetch("/stop-server", { method: "POST" });
 
+                    showToast(
+                        "Sucesso",
+                        "Servidor parado com sucesso.",
+                        "sucesso",
+                    );
 
-        
-        function showToast(title, message, type) {
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toast-icon');
-            const toastTitle = document.getElementById('toast-title');
-            const toastMessage = document.getElementById('toast-message');
-            
-            // Set content
-            toastTitle.textContent = title;
-            toastMessage.textContent = message;
-            
-            // Set icon and color based on typed color based on type
-            switch(type) {
-                case 'success':
-                case 'sucesso':
-                    toastIcon.className = 'fas fa-check-circle text-green-400 text-xl';
-                    break;
-                case 'error':
-                case 'erro':
-                    toastIcon.className = 'fas fa-exclamation-circle text-red-400 text-xl';
-                    break;
-                case 'info':
-                case 'info':
-                    toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
-                    break;;
-                default:
-                    toastIcon.className = 'fas fa-info-circle text-blue-400 text-xl';
+                    // Altera os botões
+                    document.getElementById("stop-btn").classList.add("hidden"); // esconde botão "Parar Coleta"
+                    document
+                        .getElementById("start-btn")
+                        .classList.remove("hidden"); // mostra botão "Coletar Coordenadas"
+
+                    // Altera o texto de status
+                    document.getElementById("status-info").textContent =
+                        "Pronto para coletar coordenadas";
+
+                    processData();
+                } catch (error) {
+                    showToast("Erro", error.message, "erro");
+                    console.error("Erro ao parar o servidor:", error);
+                }
             }
-            
-            // Show toast
-            toast.classList.add('show');
-               
-            // Hide after 3 seconds/ Hide after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-    </script>
-</body>
+
+            async function processData() {
+                try {
+                    const response = await fetch("/process-data", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ distancia: selectedDistance }),
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(
+                            `Erro do servidor: ${response.status} - ${errorText}`,
+                        );
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        const panelGrafico =
+                            document.getElementById("panel-grafico");
+                        panelGrafico.innerHTML = "";
+
+                        // Array com os nomes dos arquivos que seu backend gera
+                        const graficos = ["grafico_1_2.png", "grafico_3_4.png"];
+
+                        graficos.forEach((nomeArquivo) => {
+                            const img = new Image();
+                            img.src = `/static/${nomeArquivo}?t=${Date.now()}`;
+                            img.alt = `Gráfico ${nomeArquivo}`;
+                            img.className = "w-full mb-4";
+                            img.onerror = () => {
+                                showToast(
+                                    "Error",
+                                    `Erro ao carregar o gráfico ${nomeArquivo}`,
+                                    "error",
+                                );
+                            };
+                            panelGrafico.appendChild(img);
+                        });
+
+                        // Atualiza o iframe do mapa normalmente
+                        const panelMapa = document.getElementById("panel-mapa");
+                        const iframeMapa =
+                            document.getElementById("iframe-mapa");
+                        iframeMapa.src =
+                            "/static/trajetoria.html?t=" + Date.now();
+                        panelMapa.style.display = "";
+
+                        // Atualiza velocidade
+                        document.getElementById("velocity-info").textContent =
+                            `${data.velocity.toFixed(2)} m/s`;
+
+                        showToast(
+                            "Success",
+                            "Gráficos gerados com sucesso!",
+                            "success",
+                        );
+                    } else {
+                        throw new Error(data.message || "Processing failed");
+                    }
+                } catch (error) {
+                    showToast("Error", error.message, "error");
+                    console.error("Processing error:", error);
+                }
+            }
+
+            async function processDataH() {
+                try {
+                    const response = await fetch("/process-data-h", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(
+                            `Erro do servidor: ${response.status} - ${errorText}`,
+                        );
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === "success") {
+                        const panelGrafico =
+                            document.getElementById("panel-grafico");
+                        panelGrafico.innerHTML = "";
+
+                        // Array com os nomes dos arquivos que seu backend gera
+                        const graficos = ["grafico_1_2.png", "grafico_3_4.png"];
+
+                        graficos.forEach((nomeArquivo) => {
+                            const img = new Image();
+                            img.src = `/static/${nomeArquivo}?t=${Date.now()}`;
+                            img.alt = `Gráfico ${nomeArquivo}`;
+                            img.className = "w-full mb-4";
+                            img.onerror = () => {
+                                showToast(
+                                    "Error",
+                                    `Erro ao carregar o gráfico ${nomeArquivo}`,
+                                    "error",
+                                );
+                            };
+                            panelGrafico.appendChild(img);
+                        });
+
+                        // Atualiza o iframe do mapa normalmente
+                        const panelMapa = document.getElementById("panel-mapa");
+                        const iframeMapa =
+                            document.getElementById("iframe-mapa");
+                        iframeMapa.src =
+                            "/static/trajetoria.html?t=" + Date.now();
+                        panelMapa.style.display = "";
+
+                        // Atualiza velocidade
+                        document.getElementById("velocity-info").textContent =
+                            `${data.velocity.toFixed(2)} m/s`;
+
+                        showToast(
+                            "Success",
+                            "Gráficos gerados com sucesso!",
+                            "success",
+                        );
+                    } else {
+                        throw new Error(data.message || "Processing failed");
+                    }
+                } catch (error) {
+                    showToast("Erro", error.message, "erro");
+                    console.error("Erro ao processar dados:", error);
+                }
+            }
+
+            function showToast(title, message, type) {
+                const toast = document.getElementById("toast");
+                const toastIcon = document.getElementById("toast-icon");
+                const toastTitle = document.getElementById("toast-title");
+                const toastMessage = document.getElementById("toast-message");
+
+                toastTitle.textContent = title;
+                toastMessage.textContent = message;
+
+                switch (type) {
+                    case "success":
+                    case "sucesso":
+                        toastIcon.className =
+                            "fas fa-check-circle text-green-400 text-xl";
+                        break;
+                    case "error":
+                    case "erro":
+                        toastIcon.className =
+                            "fas fa-exclamation-circle text-red-400 text-xl";
+                        break;
+                    case "info":
+                        toastIcon.className =
+                            "fas fa-info-circle text-blue-400 text-xl";
+                        break;
+                    default:
+                        toastIcon.className =
+                            "fas fa-info-circle text-blue-400 text-xl";
+                }
+
+                toast.classList.add("show");
+
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                }, 3000);
+            }
+        </script>
+    </body>
 </html>
